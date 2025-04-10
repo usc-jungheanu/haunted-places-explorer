@@ -1,0 +1,11 @@
+streamlit==1.24.0
+pandas==2.0.3
+numpy==1.24.3
+plotly==5.16.0
+folium==0.14.0
+streamlit-folium==0.13.0
+matplotlib==3.7.2
+tika==2.6.0
+requests==2.31.0
+python-dotenv==1.0.0
+pillow==10.0.0 

@@ -1,0 +1,34 @@
+{
+    "correlation_matrix": [
+        {
+            "x": "latitude",
+            "y": "latitude",
+            "value": 1.0
+        },
+        {
+            "x": "latitude",
+            "y": "longitude",
+            "value": 0.12329223763330956
+        },
+        {
+            "x": "latitude",
+            "y": "daylight_hours",
+            "value": 0
+        },
+        {
+            "x": "longitude",
+            "y": "longitude",
+            "value": 1.0
+        },
+        {
+            "x": "longitude",
+            "y": "daylight_hours",
+            "value": 0
+        },
+        {
+            "x": "daylight_hours",
+            "y": "daylight_hours",
+            "value": 0
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  imagespace:
+    image: memex/imagespace:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    networks:
+      - memex-network
+
+  geoparser:
+    image: memex/geoparser:latest
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+    networks:
+      - memex-network
+
+networks:
+  memex-network:
+    driver: bridge 

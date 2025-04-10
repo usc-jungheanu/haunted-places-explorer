@@ -1,0 +1,35 @@
+{
+    "evidence_counts": {
+        "Unknown": 9731
+    },
+    "apparition_counts": [
+        {
+            "apparition_type": "Unknown",
+            "count": 3330
+        },
+        {
+            "apparition_type": "Ghost",
+            "count": 3109
+        },
+        {
+            "apparition_type": "Ghost Light",
+            "count": 1923
+        },
+        {
+            "apparition_type": "Mist",
+            "count": 797
+        },
+        {
+            "apparition_type": "Shadow Figure",
+            "count": 346
+        },
+        {
+            "apparition_type": "Full-Bodied Apparition",
+            "count": 128
+        },
+        {
+            "apparition_type": "Partial Apparition",
+            "count": 98
+        }
+    ]
+}
