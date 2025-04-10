@@ -182,8 +182,8 @@ with st.sidebar:
     # We'll add filters later after data is loaded
     
     st.markdown("---")
-    st.markdown("**DSCI 550 Assignment**")
-    st.markdown("Created by: [Your Name]")
+    st.markdown("**DSCI 550 HW3 Assignment**")
+    # st.markdown("Created by: [Your Name]")
 
 # Load data
 data = {
@@ -458,7 +458,7 @@ elif page == "MEMEX Tools":
     add_simplified_memex_tab()
 
 # Footer
-st.markdown("---")
-st.markdown(
-    "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
-) 
+# st.markdown("---")
+# st.markdown(
+#     "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
+#) 
