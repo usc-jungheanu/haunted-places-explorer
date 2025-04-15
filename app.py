@@ -24,8 +24,8 @@ st.markdown("""
 <style>
     /* All your existing CSS rules */
     
-    /* Hide the sidebar collapse button */
-    .st-emotion-cache-1inwz65 {
+    /* Remove the sidebar collapse button completely */
+    section[data-testid="stSidebar"] > div > div:first-child {
         display: none !important;
     }
     
