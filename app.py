@@ -20,6 +20,28 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.markdown("""
+<style>
+    /* All your existing CSS rules */
+    
+    /* Hide the sidebar collapse button */
+    .st-emotion-cache-1inwz65 {
+        display: none !important;
+    }
+    
+    /* Ensure the sidebar remains at a fixed width */
+    [data-testid="stSidebar"] {
+        min-width: 300px !important;
+        max-width: 300px !important;
+    }
+    
+    /* Add a subtle border on the right side of the sidebar */
+    [data-testid="stSidebar"] > div {
+        border-right: 1px solid #4a4a4a;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
