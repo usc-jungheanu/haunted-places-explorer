@@ -197,7 +197,7 @@ page = st.sidebar.radio(
     "Go to",
     ["Home", "Map Visualization", "Time Analysis", "Evidence Analysis", 
      "Location Analysis", "Correlation Analysis", "D3 Visualizations", 
-     "MEMEX Tools", "Data Storage Status", "Report Generator"]
+     "MEMEX Tools", "Data Storage Status"]
 )
 
 # Main content based on selected page
@@ -531,82 +531,9 @@ elif page == "Data Storage Status":
             st.error("❌ Solr is not running or not accessible")
             st.info(f"Error details: {str(e)}")
 
-# Report Generator page
-elif page == "Report Generator":
-    st.header("Assignment Report Generator")
-    
-    # Check if report generator code is available
-    try:
-        from streamlit_d3_integration import generate_report
-        generate_report()
-    except ImportError:
-        st.error("Report generator module not found. Please create streamlit_d3_integration.py first.")
-        
-        # Simple implementation
-        st.info("""
-        This tool will help you generate the 4-page report required by the assignment.
-        Fill in the sections below and click 'Generate Report' to download a markdown file.
-        """)
-        
-        # Visualization selection
-        st.subheader("1. Why did you select your 5 D3 visualizations?")
-        visualization_reasons = st.text_area(
-            "Explain your visualization choices and how they show off your features from assignments 1 and 2:",
-            height=200,
-            key="viz_reasons"
-        )
-        
-        # ImageSpace findings
-        st.subheader("2. ImageSpace Findings")
-        image_space_findings = st.text_area(
-            "Did ImageSpace allow you to find any similarity between the generated Haunted places images that previously was not easily discernible?",
-            height=200,
-            key="img_findings"
-        )
-        
-        # Location data
-        st.subheader("3. Location Data Insights")
-        location_findings = st.text_area(
-            "What type of location data showed up in your data? Any correlations not previously seen?",
-            height=200,
-            key="loc_findings"
-        )
-        
-        # Tool experience
-        st.subheader("4. Experience with Tools")
-        tool_experience = st.text_area(
-            "Your thoughts about ImageSpace and ImageCat – what was easy about using them? What wasn't?",
-            height=200,
-            key="tool_exp"
-        )
-        
-        if st.button("Generate Report"):
-            report = f"""
-            # Haunted Places Analysis Report
-            
-            ## 1. Visualization Selection
-            {visualization_reasons}
-            
-            ## 2. ImageSpace Findings
-            {image_space_findings}
-            
-            ## 3. Location Data Insights
-            {location_findings}
-            
-            ## 4. Experience with Tools
-            {tool_experience}
-            """
-            
-            # Create a downloadable report
-            st.download_button(
-                label="Download Report",
-                data=report,
-                file_name="haunted_places_report.md",
-                mime="text/markdown"
-            )
 
 # Footer
-st.markdown("---")
-st.markdown(
-    "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
-)
+# st.markdown("---")
+# st.markdown(
+    # "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
+# )
