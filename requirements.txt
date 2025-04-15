@@ -9,3 +9,5 @@ tika==2.6.0
 requests==2.31.0
 python-dotenv==1.0.0
 pillow==10.0.0 
+elasticsearch==7.17.0
+pysolr==3.9.0
