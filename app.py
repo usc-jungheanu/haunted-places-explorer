@@ -29,6 +29,88 @@ DATA_DIR = "data"
 OUTPUT_DIR = "output"
 PROCESSED_DATA = False
 
+# Add custom CSS for a more modern look - This is where the UI improvement code goes
+st.markdown("""
+<style>
+    .main {
+        background-color: #1a1a1a;
+        color: #f0f0f0;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #2c2c2c;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #6e6cd9;
+    }
+    h1, h2, h3 {
+        color: #e0e0e0;
+    }
+    .stSidebar {
+        background-color: #2c2c2c;
+    }
+    .stButton button {
+        background-color: #6e6cd9;
+        color: white;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .stButton button:hover {
+        background-color: #5250b4;
+        transform: translateY(-2px);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    /* Card-like containers for content */
+    .stExpander {
+        background-color: #2c2c2c;
+        border-radius: 8px;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    /* Make dataframes more readable */
+    .dataframe {
+        background-color: #2c2c2c !important;
+        color: #f0f0f0 !important;
+        border-radius: 8px !important;
+    }
+    .dataframe th {
+        background-color: #4a4a4a !important;
+        color: white !important;
+    }
+    /* Navigation button styling */
+    div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div button {
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        background-color: #2c2c2c;
+        color: #f0f0f0;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div button:hover {
+        background-color: #4a4a4a;
+        transform: translateX(5px);
+    }
+    div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div button[data-active="true"] {
+        background-color: #6e6cd9;
+        color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Load and process data if needed
 @st.cache_data
 def load_data():
@@ -124,64 +206,6 @@ def load_correlation_data():
 # Process data and ensure files exist
 data_loaded = load_data()
 
-# Add custom CSS
-st.markdown("""
-<style>
-    .main {
-        background-color: #1a1a1a;
-        color: #f0f0f0;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #2c2c2c;
-        border-radius: 4px 4px 0px 0px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #4a4a4a;
-    }
-    h1, h2, h3 {
-        color: #e0e0e0;
-    }
-    .stSidebar {
-        background-color: #2c2c2c;
-    }
-    .stButton button {
-        background-color: #6e6cd9;
-        color: white;
-    }
-    .stButton button:hover {
-        background-color: #5250b4;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Title and description
-st.title("👻 Haunted Places Analysis")
-st.markdown("### Unveiling the supernatural landscape across America")
-
-# Sidebar
-with st.sidebar:
-    st.header("About")
-    st.info(
-        "This dashboard explores haunted locations across the United States, "
-        "providing insights into supernatural activities, locations, and patterns."
-    )
-    
-    st.header("Filters")
-    
-    # We'll add filters later after data is loaded
-    
-    st.markdown("---")
-    st.markdown("**DSCI 550 HW3 Assignment**")
-    # st.markdown("Created by: [Your Name]")
-
 # Load data
 data = {
     'map': load_map_data(),
@@ -191,14 +215,56 @@ data = {
     'correlation': load_correlation_data()
 }
 
-# Sidebar for navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Go to",
-    ["Home", "Map Visualization", "Time Analysis", "Evidence Analysis", 
-     "Location Analysis", "Correlation Analysis", "D3 Visualizations", 
-     "MEMEX Tools", "Data Storage Status"]
-)
+# Title and description (we'll put this in the main content area instead of sidebar)
+st.title("👻 Haunted Places Analysis")
+st.markdown("### Unveiling the supernatural landscape across America")
+
+# Improved sidebar with modern navigation
+with st.sidebar:
+    st.title("👻 Navigation")
+    st.markdown("---")
+    
+    # Modern-looking menu with buttons
+    st.subheader("Explore Haunted Places")
+    
+    # Initialize session state for current page if it doesn't exist
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "Home"
+    
+    # Create column layout for buttons
+    menu_options = {
+        "🏠 Home": "Home",
+        "🗺️ Map View": "Map Visualization",
+        "⏱️ Time Analysis": "Time Analysis",
+        "🔍 Evidence Analysis": "Evidence Analysis",
+        "📍 Location Analysis": "Location Analysis",
+        "📊 Correlation Analysis": "Correlation Analysis",
+        "📈 D3 Visualizations": "D3 Visualizations",
+        "🔬 MEMEX Tools": "MEMEX Tools",
+        "💾 Data Storage": "Data Storage Status"
+    }
+    
+    # Create buttons for each menu option
+    for emoji_label, page_name in menu_options.items():
+        button_style = "primary" if st.session_state.current_page == page_name else "secondary"
+        if st.button(emoji_label, key=f"nav_{page_name}", use_container_width=True, type=button_style):
+            st.session_state.current_page = page_name
+            # Force a rerun to update the page content
+            st.rerun()
+    
+    # Add information section
+    st.markdown("---")
+    st.subheader("About")
+    st.info(
+        "This dashboard explores haunted locations across the United States, "
+        "providing insights into supernatural activities, locations, and patterns."
+    )
+    
+    st.markdown("---")
+    st.markdown("**DSCI 550 HW3 Assignment**")
+
+# Get current page from session state
+page = st.session_state.current_page
 
 # Main content based on selected page
 if page == "Home":
@@ -455,9 +521,8 @@ elif page == "Correlation Analysis":
 
 # New D3 Visualizations page
 elif page == "D3 Visualizations":
-    st.header("D3 Visualizations")
-    
-    # Check if D3 integration code is available
+    # We don't need a duplicate header here since the page title will show
+    # Try to import and use the D3 visualization code
     try:
         from streamlit_d3_integration import add_d3_visualizations_tab
         add_d3_visualizations_tab()
@@ -475,8 +540,7 @@ elif page == "D3 Visualizations":
 
 # MEMEX Tools page
 elif page == "MEMEX Tools":
-    st.header("MEMEX Tools")
-    
+    # We don't need a duplicate header here since the page title will show
     # Check if MEMEX tools code is available
     try:
         from streamlit_d3_integration import add_memex_tools_tab
@@ -491,8 +555,7 @@ elif page == "MEMEX Tools":
 
 # Data Storage Status page
 elif page == "Data Storage Status":
-    st.header("Data Storage Status")
-    
+    # We don't need a duplicate header here since the page title will show
     # Check if data storage status code is available
     try:
         from streamlit_d3_integration import add_data_status_tab
@@ -531,9 +594,8 @@ elif page == "Data Storage Status":
             st.error("❌ Solr is not running or not accessible")
             st.info(f"Error details: {str(e)}")
 
-
 # Footer
-# st.markdown("---")
-# st.markdown(
-    # "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
-# )
+st.markdown("---")
+st.markdown(
+    "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
+)

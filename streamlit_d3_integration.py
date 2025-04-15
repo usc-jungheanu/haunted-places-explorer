@@ -7,8 +7,7 @@ def add_d3_visualizations_tab():
     Add D3 visualizations tab to the Streamlit app
     Uses individual HTML files for each visualization
     """
-    st.header("D3 Visualizations")
-    
+
     st.markdown("""
     These visualizations were created using D3.js as required by the assignment.
     Click on the tabs below to explore different aspects of the haunted places data.
