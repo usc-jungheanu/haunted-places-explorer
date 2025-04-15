@@ -247,8 +247,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Modern-looking menu with buttons
-    st.subheader("👻 Navigation " \
-    "Explore Haunted Places")
+    st.subheader("👻 Navigation")
     
     # Initialize session state for current page if it doesn't exist
     if 'current_page' not in st.session_state:
