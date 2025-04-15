@@ -243,11 +243,12 @@ st.markdown("### Unveiling the supernatural landscape across America")
 
 # Improved sidebar with modern navigation
 with st.sidebar:
-    st.title("👻 Navigation")
+    st.title("DSCI 550 HW3 Assignment")
     st.markdown("---")
     
     # Modern-looking menu with buttons
-    st.subheader("Explore Haunted Places")
+    st.subheader("👻 Navigation " \
+    "Explore Haunted Places")
     
     # Initialize session state for current page if it doesn't exist
     if 'current_page' not in st.session_state:
