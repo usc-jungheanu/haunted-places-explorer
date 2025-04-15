@@ -239,8 +239,6 @@ data = {
 
 # Title and description (we'll put this in the main content area instead of sidebar)
 st.title("👻 Haunted Places Analysis")
-st.markdown("### Unveiling the supernatural landscape across America")
-
 # Improved sidebar with modern navigation
 with st.sidebar:
     st.title("DSCI 550 HW3 Assignment")
@@ -274,16 +272,6 @@ with st.sidebar:
             # Force a rerun to update the page content
             st.rerun()
     
-    # Add information section
-    st.markdown("---")
-    st.subheader("About")
-    st.info(
-        "This dashboard explores haunted locations across the United States, "
-        "providing insights into supernatural activities, locations, and patterns."
-    )
-    
-    st.markdown("---")
-    st.markdown("**DSCI 550 HW3 Assignment**")
 
 # Get current page from session state
 page = st.session_state.current_page
@@ -615,9 +603,3 @@ elif page == "Data Storage Status":
         except Exception as e:
             st.error("❌ Solr is not running or not accessible")
             st.info(f"Error details: {str(e)}")
-
-# Footer
-st.markdown("---")
-st.markdown(
-    "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
-)
