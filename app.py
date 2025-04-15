@@ -51,7 +51,7 @@ DATA_DIR = "data"
 OUTPUT_DIR = "output"
 PROCESSED_DATA = False
 
-# Add custom CSS for a more modern look - This is where the UI improvement code goes
+# Adding custom CSS for a more modern look
 st.markdown("""
 <style>
     .main {
@@ -71,7 +71,7 @@ st.markdown("""
         padding-bottom: 10px;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #6e6cd9;
+        background-color: #5a5ae2;
     }
     h1, h2, h3 {
         color: #e0e0e0;
@@ -80,7 +80,7 @@ st.markdown("""
         background-color: #2c2c2c;
     }
     .stButton button {
-        background-color: #6e6cd9;
+        background-color: #5a5ae2;
         color: white;
         border-radius: 6px;
         padding: 0.5rem 1rem;
@@ -127,7 +127,7 @@ st.markdown("""
         transform: translateX(5px);
     }
     div[data-testid="stVerticalBlock"] div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div button[data-active="true"] {
-        background-color: #6e6cd9;
+        background-color: #5a5ae2;
         color: white;
     }
 </style>
