@@ -12,11 +12,6 @@ import matplotlib.pyplot as plt
 import re
 import logging
 
-# Import simplified versions of components
-from simplified_memex import add_simplified_memex_tab
-from data_storage import load_processed_data
-from data_processor import DataProcessor
-
 # Set page config
 st.set_page_config(
     page_title="Haunted Places Analysis",
@@ -56,6 +51,7 @@ def load_data():
         with st.spinner("Processing data... This may take a moment."):
             try:
                 # Process the data
+                from data_processor import DataProcessor
                 data_processor = DataProcessor(
                     os.path.join(DATA_DIR, "haunted_places_v2.tsv"),
                     OUTPUT_DIR
@@ -70,6 +66,7 @@ def load_data():
                 return False
     
     # Load the processed data into the data storage for MEMEX tools
+    from data_storage import load_processed_data
     load_processed_data(OUTPUT_DIR)
     
     return True
@@ -198,7 +195,9 @@ data = {
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Go to",
-    ["Home", "Map Visualization", "Time Analysis", "Evidence Analysis", "Location Analysis", "Correlation Analysis", "MEMEX Tools"]
+    ["Home", "Map Visualization", "Time Analysis", "Evidence Analysis", 
+     "Location Analysis", "Correlation Analysis", "D3 Visualizations", 
+     "MEMEX Tools", "Data Storage Status", "Report Generator"]
 )
 
 # Main content based on selected page
@@ -212,6 +211,7 @@ if page == "Home":
     - **Evidence Analysis**: Analyze types of evidence and apparitions
     - **Location Analysis**: Explore geographical patterns
     - **Correlation Analysis**: Discover relationships between different variables
+    - **D3 Visualizations**: Explore interactive D3.js visualizations
     - **MEMEX Tools**: Use advanced image and location analysis tools
     
     Use the sidebar to navigate between different visualizations.
@@ -453,12 +453,160 @@ elif page == "Correlation Analysis":
     else:
         st.warning("No correlation data available")
 
+# New D3 Visualizations page
+elif page == "D3 Visualizations":
+    st.header("D3 Visualizations")
+    
+    # Check if D3 integration code is available
+    try:
+        from streamlit_d3_integration import add_d3_visualizations_tab
+        add_d3_visualizations_tab()
+    except ImportError:
+        st.error("D3 integration module not found. Please create streamlit_d3_integration.py first.")
+        
+        # Provide instructions
+        st.info("""
+        To set up D3 visualizations:
+        
+        1. Create a file named `streamlit_d3_integration.py` with the code provided
+        2. Create a directory named `visualizations`
+        3. Create HTML files for each D3 visualization in the `visualizations` directory
+        """)
+
+# MEMEX Tools page
 elif page == "MEMEX Tools":
-    # Use the simplified MEMEX tools instead of Docker-based ones
-    add_simplified_memex_tab()
+    st.header("MEMEX Tools")
+    
+    # Check if MEMEX tools code is available
+    try:
+        from streamlit_d3_integration import add_memex_tools_tab
+        add_memex_tools_tab()
+    except ImportError:
+        # Fall back to simplified version
+        try:
+            from simplified_memex import add_simplified_memex_tab
+            add_simplified_memex_tab()
+        except ImportError:
+            st.error("MEMEX tools modules not found. Please create required modules first.")
+
+# Data Storage Status page
+elif page == "Data Storage Status":
+    st.header("Data Storage Status")
+    
+    # Check if data storage status code is available
+    try:
+        from streamlit_d3_integration import add_data_status_tab
+        add_data_status_tab()
+    except ImportError:
+        st.error("Data storage status module not found. Please create streamlit_d3_integration.py first.")
+        
+        # Manual check
+        st.info("Manually checking Elasticsearch and Solr status...")
+        
+        # Check Elasticsearch
+        try:
+            from elasticsearch import Elasticsearch
+            es = Elasticsearch(["http://localhost:9200"])
+            es_info = es.info()
+            st.success("✅ Elasticsearch is running")
+            
+            # Check if haunted_places index exists
+            if es.indices.exists(index='haunted_places'):
+                count = es.count(index='haunted_places')['count']
+                st.info(f"Haunted Places Index contains {count} documents")
+            else:
+                st.warning("Haunted Places Index does not exist")
+        except Exception as e:
+            st.error("❌ Elasticsearch is not running or not accessible")
+            st.info(f"Error details: {str(e)}")
+        
+        # Check Solr
+        try:
+            import pysolr
+            solr = pysolr.Solr('http://localhost:8983/solr/haunted_places', always_commit=True)
+            results = solr.search('*:*', rows=0)
+            st.success("✅ Solr is running")
+            st.info(f"Haunted Places Core contains {results.hits} documents")
+        except Exception as e:
+            st.error("❌ Solr is not running or not accessible")
+            st.info(f"Error details: {str(e)}")
+
+# Report Generator page
+elif page == "Report Generator":
+    st.header("Assignment Report Generator")
+    
+    # Check if report generator code is available
+    try:
+        from streamlit_d3_integration import generate_report
+        generate_report()
+    except ImportError:
+        st.error("Report generator module not found. Please create streamlit_d3_integration.py first.")
+        
+        # Simple implementation
+        st.info("""
+        This tool will help you generate the 4-page report required by the assignment.
+        Fill in the sections below and click 'Generate Report' to download a markdown file.
+        """)
+        
+        # Visualization selection
+        st.subheader("1. Why did you select your 5 D3 visualizations?")
+        visualization_reasons = st.text_area(
+            "Explain your visualization choices and how they show off your features from assignments 1 and 2:",
+            height=200,
+            key="viz_reasons"
+        )
+        
+        # ImageSpace findings
+        st.subheader("2. ImageSpace Findings")
+        image_space_findings = st.text_area(
+            "Did ImageSpace allow you to find any similarity between the generated Haunted places images that previously was not easily discernible?",
+            height=200,
+            key="img_findings"
+        )
+        
+        # Location data
+        st.subheader("3. Location Data Insights")
+        location_findings = st.text_area(
+            "What type of location data showed up in your data? Any correlations not previously seen?",
+            height=200,
+            key="loc_findings"
+        )
+        
+        # Tool experience
+        st.subheader("4. Experience with Tools")
+        tool_experience = st.text_area(
+            "Your thoughts about ImageSpace and ImageCat – what was easy about using them? What wasn't?",
+            height=200,
+            key="tool_exp"
+        )
+        
+        if st.button("Generate Report"):
+            report = f"""
+            # Haunted Places Analysis Report
+            
+            ## 1. Visualization Selection
+            {visualization_reasons}
+            
+            ## 2. ImageSpace Findings
+            {image_space_findings}
+            
+            ## 3. Location Data Insights
+            {location_findings}
+            
+            ## 4. Experience with Tools
+            {tool_experience}
+            """
+            
+            # Create a downloadable report
+            st.download_button(
+                label="Download Report",
+                data=report,
+                file_name="haunted_places_report.md",
+                mime="text/markdown"
+            )
 
 # Footer
-# st.markdown("---")
-# st.markdown(
-#     "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
-#) 
+st.markdown("---")
+st.markdown(
+    "👻 **Haunted Places Analysis Dashboard** | DSCI 550 Assignment"
+)

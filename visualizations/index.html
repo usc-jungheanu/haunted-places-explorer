@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haunted Places D3 Visualizations</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <script src="https://d3js.org/d3-geo.v2.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: #e0e0e0;
+        }
+        
+        .visualization {
+            margin-bottom: 40px;
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        svg {
+            background-color: #1a1a1a;
+            border-radius: 4px;
+        }
+        
+        .legend {
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        select, button {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .tab-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background-color: #4a4a4a;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background-color: #6e6cd9;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👻 Haunted Places Analysis</h1>
+        <p>Interactive D3 visualizations showcasing haunted locations across America</p>
+        
+        <div class="tab-container">
+            <div class="tab active" data-tab="map">Map Visualization</div>
+            <div class="tab" data-tab="time">Time Analysis</div>
+            <div class="tab" data-tab="evidence">Evidence Analysis</div>
+            <div class="tab" data-tab="location">Location Analysis</div>
+            <div class="tab" data-tab="correlation">Correlation Analysis</div>
+        </div>
+        
+        <!-- Map Visualization -->
+        <div id="map-visualization" class="tab-content visualization active">
+            <h2>Interactive Map of Haunted Locations</h2>
+            <div class="controls">
+                <select id="filter-by">
+                    <option value="all">All Haunted Places</option>
+                    <option value="evidence">Filter by Evidence Type</option>
+                    <option value="apparition">Filter by Apparition Type</option>
+                </select>
+                <select id="filter-value" disabled>
+                    <option value="">Select Filter First</option>
+                </select>
+            </div>
+            <div id="map-container"></div>
+        </div>
+        
+        <!-- Time Analysis -->
+        <div id="time-visualization" class="tab-content visualization">
+            <h2>Temporal Analysis of Haunted Sightings</h2>
+            <div class="controls">
+                <button id="toggle-view">Switch to Time of Day</button>
+            </div>
+            <div id="time-chart"></div>
+        </div>
+        
+        <!-- Evidence Analysis -->
+        <div id="evidence-visualization" class="tab-content visualization">
+            <h2>Evidence Type Analysis</h2>
+            <div id="evidence-chart"></div>
+            <div id="apparition-chart"></div>
+        </div>
+        
+        <!-- Location Analysis -->
+        <div id="location-visualization" class="tab-content visualization">
+            <h2>Geographical Analysis</h2>
+            <div id="state-chart"></div>
+            <div id="region-chart"></div>
+        </div>
+        
+        <!-- Correlation Analysis -->
+        <div id="correlation-visualization" class="tab-content visualization">
+            <h2>Variables Correlation</h2>
+            <div id="correlation-matrix"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show clicked tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + '-visualization').classList.add('active');
+            });
+        });
+        
+        // Load data
+        Promise.all([
+            d3.json('output/map_data.json'),
+            d3.json('output/time_analysis.json'),
+            d3.json('output/evidence_analysis.json'),
+            d3.json('output/location_analysis.json'),
+            d3.json('output/correlation_data.json'),
+            d3.json('https://d3js.org/us-10m.v2.json') // US TopoJSON for map
+        ]).then(function([mapData, timeData, evidenceData, locationData, correlationData, us]) {
+            // Initialize all visualizations
+            createMapVisualization(mapData, us);
+            createTimeVisualization(timeData);
+            createEvidenceVisualization(evidenceData);
+            createLocationVisualization(locationData, us);
+            createCorrelationVisualization(correlationData);
+        }).catch(function(error) {
+            console.error('Error loading data:', error);
+        });
+        
+        // Map Visualization
+        function createMapVisualization(data, us) {
+            const width = 960;
+            const height = 600;
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            
+            // Create SVG
+            const svg = d3.select('#map-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Create tooltip
+            const tooltip = d3.select('body')
+                .append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+            
+            // Create projection and path
+            const projection = d3.geoAlbersUsa()
+                .translate([width / 2, height / 2])
+                .scale(1200);
+                
+            const path = d3.geoPath()
+                .projection(projection);
+            
+            // Draw US states
+            svg.append('g')
+                .selectAll('path')
+                .data(topojson.feature(us, us.objects.states).features)
+                .enter()
+                .append('path')
+                .attr('d', path)
+                .attr('fill', '#3a3a3a')
+                .attr('stroke', '#666')
+                .attr('stroke-width', 0.5);
+            
+            // Add dots for haunted places
+            svg.selectAll('circle')
+                .data(data.map_data)
+                .enter()
+                .append('circle')
+                .attr('cx', d => {
+                    const coords = projection([d.longitude, d.latitude]);
+                    return coords ? coords[0] : null;
+                })
+                .attr('cy', d => {
+                    const coords = projection([d.longitude, d.latitude]);
+                    return coords ? coords[1] : null;
+                })
+                .attr('r', 4)
+                .attr('fill', d => {
+                    // Color based on evidence type
+                    const evidenceColors = {
+                        'Visual': '#ff5e5e',
+                        'Auditory': '#5e8eff',
+                        'Tactile': '#5eff8e',
+                        'EMF': '#ff5ef7',
+                        'Orbs': '#ffff5e',
+                        'Objects Moving': '#ff9d5e',
+                        'Unknown': '#cccccc'
+                    };
+                    return evidenceColors[d.evidence] || '#cccccc';
+                })
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 0.5)
+                .attr('opacity', 0.8)
+                .on('mouseover', function(event, d) {
+                    // Show tooltip on hover
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0.9);
+                    
+                    tooltip.html(`
+                        <strong>${d.location}</strong><br>
+                        ${d.state}, ${d.country}<br>
+                        Evidence: ${d.evidence}<br>
+                        Apparition: ${d.apparition_type}<br>
+                        ${d.description.substring(0, 100)}...
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    // Hide tooltip
+                    tooltip.transition()
+                        .duration(500)
+                        .style('opacity', 0);
+                });
+            
+            // Create legend
+            const legend = svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(20, ${height - 120})`);
+            
+            const evidenceTypes = ['Visual', 'Auditory', 'Tactile', 'EMF', 'Orbs', 'Objects Moving', 'Unknown'];
+            const evidenceColors = ['#ff5e5e', '#5e8eff', '#5eff8e', '#ff5ef7', '#ffff5e', '#ff9d5e', '#cccccc'];
+            
+            evidenceTypes.forEach((type, i) => {
+                const legendRow = legend.append('g')
+                    .attr('transform', `translate(0, ${i * 20})`);
+                
+                legendRow.append('rect')
+                    .attr('width', 10)
+                    .attr('height', 10)
+                    .attr('fill', evidenceColors[i]);
+                
+                legendRow.append('text')
+                    .attr('x', 20)
+                    .attr('y', 10)
+                    .attr('text-anchor', 'start')
+                    .style('font-size', '12px')
+                    .text(type);
+            });
+            
+            // Filter functionality
+            d3.select('#filter-by').on('change', function() {
+                const filterBy = this.value;
+                const filterSelect = d3.select('#filter-value');
+                
+                // Clear previous options
+                filterSelect.selectAll('option').remove();
+                
+                if (filterBy === 'all') {
+                    filterSelect.attr('disabled', true)
+                        .append('option')
+                        .attr('value', '')
+                        .text('All');
+                        
+                    // Show all points
+                    svg.selectAll('circle')
+                        .style('display', 'block');
+                    
+                } else if (filterBy === 'evidence') {
+                    filterSelect.attr('disabled', null);
+                    
+                    // Get unique evidence types
+                    const evidenceTypes = [...new Set(data.map_data.map(d => d.evidence))];
+                    
+                    // Add options
+                    filterSelect.append('option')
+                        .attr('value', '')
+                        .text('All Evidence Types');
+                        
+                    evidenceTypes.forEach(type => {
+                        filterSelect.append('option')
+                            .attr('value', type)
+                            .text(type);
+                    });
+                    
+                } else if (filterBy === 'apparition') {
+                    filterSelect.attr('disabled', null);
+                    
+                    // Get unique apparition types
+                    const apparitionTypes = [...new Set(data.map_data.map(d => d.apparition_type))];
+                    
+                    // Add options
+                    filterSelect.append('option')
+                        .attr('value', '')
+                        .text('All Apparition Types');
+                        
+                    apparitionTypes.forEach(type => {
+                        filterSelect.append('option')
+                            .attr('value', type)
+                            .text(type);
+                    });
+                }
+            });
+            
+            // Handle filter value change
+            d3.select('#filter-value').on('change', function() {
+                const filterBy = d3.select('#filter-by').property('value');
+                const filterValue = this.value;
+                
+                if (filterValue === '') {
+                    // Show all points
+                    svg.selectAll('circle')
+                        .style('display', 'block');
+                    return;
+                }
+                
+                // Filter points
+                svg.selectAll('circle')
+                    .style('display', d => {
+                        if (filterBy === 'evidence' && d.evidence === filterValue) {
+                            return 'block';
+                        } else if (filterBy === 'apparition' && d.apparition_type === filterValue) {
+                            return 'block';
+                        } else {
+                            return 'none';
+                        }
+                    });
+            });
+        }
+        
+        // Time Visualization
+        function createTimeVisualization(data) {
+            const width = 960;
+            const height = 500;
+            const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = d3.select('#time-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left}, ${margin.top})`);
+                
+            // Create tooltip
+            const tooltip = d3.select('body')
+                .append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+                
+            // Initialize with year data
+            let currentView = 'year';
+            
+            // Function to update chart based on current view
+            function updateChart() {
+                // Clear previous chart
+                g.selectAll('*').remove();
+                
+                if (currentView === 'year') {
+                    // Year chart (line chart)
+                    // Process data
+                    const yearData = data.year_counts.sort((a, b) => a.year - b.year);
+                    
+                    // Create scales
+                    const xScale = d3.scaleLinear()
+                        .domain(d3.extent(yearData, d => d.year))
+                        .range([0, innerWidth]);
+                        
+                    const yScale = d3.scaleLinear()
+                        .domain([0, d3.max(yearData, d => d.count)])
+                        .range([innerHeight, 0])
+                        .nice();
+                        
+                    // Create axes
+                    const xAxis = d3.axisBottom(xScale)
+                        .tickFormat(d3.format('d'));
+                        
+                    const yAxis = d3.axisLeft(yScale);
+                    
+                    // Add axes
+                    g.append('g')
+                        .attr('class', 'x-axis')
+                        .attr('transform', `translate(0, ${innerHeight})`)
+                        .call(xAxis);
+                        
+                    g.append('g')
+                        .attr('class', 'y-axis')
+                        .call(yAxis);
+                        
+                    // Add axis labels
+                    g.append('text')
+                        .attr('class', 'x-axis-label')
+                        .attr('x', innerWidth / 2)
+                        .attr('y', innerHeight + 40)
+                        .attr('text-anchor', 'middle')
+                        .text('Year');
+                        
+                    g.append('text')
+                        .attr('class', 'y-axis-label')
+                        .attr('transform', 'rotate(-90)')
+                        .attr('x', -innerHeight / 2)
+                        .attr('y', -40)
+                        .attr('text-anchor', 'middle')
+                        .text('Number of Hauntings');
+                        
+                    // Create line
+                    const line = d3.line()
+                        .x(d => xScale(d.year))
+                        .y(d => yScale(d.count))
+                        .curve(d3.curveMonotoneX);
+                        
+                    // Add line
+                    g.append('path')
+                        .datum(yearData)
+                        .attr('class', 'line')
+                        .attr('fill', 'none')
+                        .attr('stroke', '#6e6cd9')
+                        .attr('stroke-width', 2)
+                        .attr('d', line);
+                        
+                    // Add points
+                    g.selectAll('.point')
+                        .data(yearData)
+                        .enter()
+                        .append('circle')
+                        .attr('class', 'point')
+                        .attr('cx', d => xScale(d.year))
+                        .attr('cy', d => yScale(d.count))
+                        .attr('r', 5)
+                        .attr('fill', '#6e6cd9')
+                        .on('mouseover', function(event, d) {
+                            tooltip.transition()
+                                .duration(200)
+                                .style('opacity', 0.9);
+                                
+                            tooltip.html(`Year: ${d.year}<br>Hauntings: ${d.count}`)
+                                .style('left', (event.pageX + 10) + 'px')
+                                .style('top', (event.pageY - 28) + 'px');
+                        })
+                        .on('mouseout', function() {
+                            tooltip.transition()
+                                .duration(500)
+                                .style('opacity', 0);
+                        });
+                        
+                    // Add title
+                    g.append('text')
+                        .attr('class', 'chart-title')
+                        .attr('x', innerWidth / 2)
+                        .attr('y', -15)
+                        .attr('text-anchor', 'middle')
+                        .style('font-size', '16px')
+                        .text('Haunted Places Reports by Year');
+                        
+                } else {
+                    // Time of day chart (pie chart)
+                    const timeData = data.time_of_day_counts;
+                    
+                    // Process data
+                    const total = d3.sum(timeData, d => d.count);
+                    
+                    // Create color scale
+                    const colorScale = d3.scaleOrdinal()
+                        .domain(timeData.map(d => d.time_of_day))
+                        .range(d3.schemeCategory10);
+                    
+                    // Create arc generator
+                    const radius = Math.min(innerWidth, innerHeight) / 2;
+                    
+                    const arc = d3.arc()
+                        .innerRadius(0)
+                        .outerRadius(radius);
+                        
+                    const labelArc = d3.arc()
+                        .innerRadius(radius * 0.6)
+                        .outerRadius(radius * 0.6);
+                        
+                    // Create pie generator
+                    const pie = d3.pie()
+                        .value(d => d.count)
+                        .sort(null);
+                        
+                    // Create chart group
+                    const chart = g.append('g')
+                        .attr('transform', `translate(${innerWidth / 2}, ${innerHeight / 2})`);
+                    
+                    // Add pie segments
+                    chart.selectAll('.arc')
+                        .data(pie(timeData))
+                        .enter()
+                        .append('path')
+                        .attr('class', 'arc')
+                        .attr('d', arc)
+                        .attr('fill', d => colorScale(d.data.time_of_day))
+                        .attr('stroke', '#fff')
+                        .attr('stroke-width', 1)
+                        .on('mouseover', function(event, d) {
+                            const percent = ((d.data.count / total) * 100).toFixed(1);
+                            
+                            tooltip.transition()
+                                .duration(200)
+                                .style('opacity', 0.9);
+                                
+                            tooltip.html(`
+                                <strong>${d.data.time_of_day}</strong><br>
+                                Count: ${d.data.count}<br>
+                                Percentage: ${percent}%
+                            `)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 28) + 'px');
+                        })
+                        .on('mouseout', function() {
+                            tooltip.transition()
+                                .duration(500)
+                                .style('opacity', 0);
+                        });
+                        
+                    // Add labels
+                    chart.selectAll('.label')
+                        .data(pie(timeData))
+                        .enter()
+                        .append('text')
+                        .attr('class', 'label')
+                        .attr('transform', d => `translate(${labelArc.centroid(d)})`)
+                        .attr('text-anchor', 'middle')
+                        .style('font-size', '12px')
+                        .style('fill', '#fff')
+                        .text(d => {
+                            const percent = ((d.data.count / total) * 100).toFixed(1);
+                            return percent > 5 ? `${percent}%` : '';
+                        });
+                        
+                    // Add title
+                    g.append('text')
+                        .attr('class', 'chart-title')
+                        .attr('x', innerWidth / 2)
+                        .attr('y', -15)
+                        .attr('text-anchor', 'middle')
+                        .style('font-size', '16px')
+                        .text('Distribution of Hauntings by Time of Day');
+                        
+                    // Add legend
+                    const legend = g.append('g')
+                        .attr('class', 'legend')
+                        .attr('transform', `translate(${innerWidth - 120}, ${innerHeight - 100})`);
+                        
+                    timeData.forEach((d, i) => {
+                        const legendRow = legend.append('g')
+                            .attr('transform', `translate(0, ${i * 20})`);
+                            
+                        legendRow.append('rect')
+                            .attr('width', 10)
+                            .attr('height', 10)
+                            .attr('fill', colorScale(d.time_of_day));
+                            
+                        legendRow.append('text')
+                            .attr('x', 20)
+                            .attr('y', 10)
+                            .attr('text-anchor', 'start')
+                            .style('font-size', '12px')
+                            .style('fill', '#fff')
+                            .text(d.time_of_day);
+                    });
+                }
+            }
+            
+            // Initial render
+            updateChart();
+            
+            // Toggle button
+            d3.select('#toggle-view').on('click', function() {
+                currentView = currentView === 'year' ? 'time' : 'year';
+                this.textContent = currentView === 'year' ? 'Switch to Time of Day' : 'Switch to Year';
+                updateChart();
+            });
+        }
+        
+        // Evidence Visualization
+        function createEvidenceVisualization(data) {
+            const width = 960;
+            const height = 500;
+            const margin = { top: 40, right: 40, bottom: 100, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Evidence chart
+            const evidenceSvg = d3.select('#evidence-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const evidenceG = evidenceSvg.append('g')
+                .attr('transform', `translate(${margin.left}, ${margin.top})`);
+                
+            // Process evidence data
+            const evidenceData = Object.entries(data.evidence_counts)
+                .map(([type, count]) => ({ type, count }))
+                .sort((a, b) => b.count - a.count);
+                
+            // Create scales
+            const xScale = d3.scaleBand()
+                .domain(evidenceData.map(d => d.type))
+                .range([0, innerWidth])
+                .padding(0.2);
+                
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(evidenceData, d => d.count)])
+                .range([innerHeight, 0])
+                .nice();
+                
+            // Create axes
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale);
+            
+            // Add axes
+            evidenceG.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0, ${innerHeight})`)
+                .call(xAxis)
+                .selectAll('text')
+                .attr('transform', 'rotate(-45)')
+                .attr('text-anchor', 'end')
+                .attr('x', -10)
+                .attr('y', 10);
+                
+            evidenceG.append('g')
+                .attr('class', 'y-axis')
+                .call(yAxis);
+                
+            // Add bars
+            evidenceG.selectAll('.bar')
+                .data(evidenceData)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => xScale(d.type))
+                .attr('y', d => yScale(d.count))
+                .attr('width', xScale.bandwidth())
+                .attr('height', d => innerHeight - yScale(d.count))
+                .attr('fill', '#6e6cd9');
+                
+            // Add title
+            evidenceG.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', innerWidth / 2)
+                .attr('y', -15)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .text('Types of Evidence Reported');
+                
+            // Apparition chart
+            const apparitionSvg = d3.select('#apparition-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const apparitionG = apparitionSvg.append('g')
+                .attr('transform', `translate(${innerWidth / 2 + margin.left}, ${innerHeight / 2 + margin.top})`);
+                
+            // Process apparition data
+            const apparitionData = data.apparition_counts;
+            const total = d3.sum(apparitionData, d => d.count);
+            
+            // Create color scale
+            const colorScale = d3.scaleOrdinal()
+                .domain(apparitionData.map(d => d.apparition_type))
+                .range(d3.schemeSet3);
+                
+            // Create arc generator
+            const radius = Math.min(innerWidth, innerHeight) / 2;
+            
+            const arc = d3.arc()
+                .innerRadius(radius * 0.5)  // Donut chart
+                .outerRadius(radius);
+                
+            const labelArc = d3.arc()
+                .innerRadius(radius * 0.7)
+                .outerRadius(radius * 0.7);
+                
+            // Create pie generator
+            const pie = d3.pie()
+                .value(d => d.count)
+                .sort(null);
+                
+            // Add pie segments
+            apparitionG.selectAll('.arc')
+                .data(pie(apparitionData))
+                .enter()
+                .append('path')
+                .attr('class', 'arc')
+                .attr('d', arc)
+                .attr('fill', d => colorScale(d.data.apparition_type))
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1);
+                
+            // Add labels
+            apparitionG.selectAll('.label')
+                .data(pie(apparitionData))
+                .enter()
+                .append('text')
+                .attr('class', 'label')
+                .attr('transform', d => `translate(${labelArc.centroid(d)})`)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text(d => {
+                    const percent = ((d.data.count / total) * 100).toFixed(1);
+                    return percent > 5 ? `${percent}%` : '';
+                });
+                
+            // Add title
+            apparitionSvg.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', width / 2)
+                .attr('y', 25)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .text('Types of Apparitions Reported');
+                
+            // Add legend
+            const legend = apparitionSvg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${width - 150}, 50)`);
+                
+            apparitionData.forEach((d, i) => {
+                const legendRow = legend.append('g')
+                    .attr('transform', `translate(0, ${i * 20})`);
+                    
+                legendRow.append('rect')
+                    .attr('width', 10)
+                    .attr('height', 10)
+                    .attr('fill', colorScale(d.apparition_type));
+                    
+                legendRow.append('text')
+                    .attr('x', 20)
+                    .attr('y', 10)
+                    .attr('text-anchor', 'start')
+                    .style('font-size', '12px')
+                    .text(d.apparition_type);
+            });
+        }
+        
+        // Location Visualization
+        function createLocationVisualization(data, us) {
+            const width = 960;
+            const height = 500;
+            const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // State chart (choropleth)
+            const stateSvg = d3.select('#state-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const stateG = stateSvg.append('g')
+                .attr('transform', `translate(${margin.left}, ${margin.top})`);
+                
+            // Process state data
+            const stateData = data.state_counts;
+            
+            // Create maps for state data lookup
+            const stateCountMap = new Map();
+            stateData.forEach(d => {
+                stateCountMap.set(d.state.toLowerCase(), d.count);
+            });
+            
+            // Create projection
+            const projection = d3.geoAlbersUsa()
+                .translate([innerWidth / 2, innerHeight / 2])
+                .scale(1000);
+                
+            const path = d3.geoPath()
+                .projection(projection);
+                
+            // Create color scale
+            const colorScale = d3.scaleSequential(d3.interpolateBlues)
+                .domain([0, d3.max(stateData, d => d.count)]);
+                
+            // Create tooltip
+            const tooltip = d3.select('body')
+                .append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+                
+            // Draw states
+            stateG.selectAll('path')
+                .data(topojson.feature(us, us.objects.states).features)
+                .enter()
+                .append('path')
+                .attr('d', path)
+                .attr('fill', d => {
+                    // Get state name from id
+                    const stateId = d.id;
+                    const stateName = getStateNameFromId(stateId);
+                    const count = stateCountMap.get(stateName?.toLowerCase()) || 0;
+                    return colorScale(count);
+                })
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 0.5)
+                .on('mouseover', function(event, d) {
+                    const stateId = d.id;
+                    const stateName = getStateNameFromId(stateId);
+                    const count = stateCountMap.get(stateName?.toLowerCase()) || 0;
+                    
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0.9);
+                        
+                    tooltip.html(`
+                        <strong>${stateName}</strong><br>
+                        Haunted Places: ${count}
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style('opacity', 0);
+                });
+                
+            // Add title
+            stateG.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', innerWidth / 2)
+                .attr('y', -15)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .text('Haunted Places by State');
+                
+            // Add legend
+            const legendWidth = 260;
+            const legendHeight = 15;
+            
+            const legendScale = d3.scaleLinear()
+                .domain([0, d3.max(stateData, d => d.count)])
+                .range([0, legendWidth]);
+                
+            const legendAxis = d3.axisBottom(legendScale)
+                .ticks(5);
+                
+            const legend = stateG.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${innerWidth - legendWidth - 10}, ${innerHeight - 40})`);
+                
+            const defs = legend.append('defs');
+            
+            const linearGradient = defs.append('linearGradient')
+                .attr('id', 'linear-gradient');
+                
+            linearGradient.selectAll('stop')
+                .data(d3.range(0, 1.1, 0.1).map(d => ({
+                    offset: d,
+                    color: colorScale(d * d3.max(stateData, d => d.count))
+                })))
+                .enter()
+                .append('stop')
+                .attr('offset', d => `${d.offset * 100}%`)
+                .attr('stop-color', d => d.color);
+                
+            legend.append('rect')
+                .attr('width', legendWidth)
+                .attr('height', legendHeight)
+                .style('fill', 'url(#linear-gradient)');
+                
+            legend.append('g')
+                .attr('transform', `translate(0, ${legendHeight})`)
+                .call(legendAxis);
+                
+            legend.append('text')
+                .attr('x', legendWidth / 2)
+                .attr('y', legendHeight + 30)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('Number of Haunted Places');
+                
+            // Region chart (pie chart)
+            const regionSvg = d3.select('#region-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const regionG = regionSvg.append('g')
+                .attr('transform', `translate(${innerWidth / 2 + margin.left}, ${innerHeight / 2 + margin.top})`);
+                
+            // Process region data
+            const regionData = data.region_counts;
+            const regionTotal = d3.sum(regionData, d => d.count);
+            
+            // Create color scale
+            const regionColorScale = d3.scaleOrdinal()
+                .domain(regionData.map(d => d.region))
+                .range(d3.schemeSet2);
+                
+            // Create arc generator
+            const regionRadius = Math.min(innerWidth, innerHeight) / 2;
+            
+            const regionArc = d3.arc()
+                .innerRadius(0)  // Pie chart
+                .outerRadius(regionRadius);
+                
+            const regionLabelArc = d3.arc()
+                .innerRadius(regionRadius * 0.6)
+                .outerRadius(regionRadius * 0.6);
+                
+            // Create pie generator
+            const regionPie = d3.pie()
+                .value(d => d.count)
+                .sort(null);
+                
+            // Add pie segments
+            regionG.selectAll('.arc')
+                .data(regionPie(regionData))
+                .enter()
+                .append('path')
+                .attr('class', 'arc')
+                .attr('d', regionArc)
+                .attr('fill', d => regionColorScale(d.data.region))
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1)
+                .on('mouseover', function(event, d) {
+                    const percent = ((d.data.count / regionTotal) * 100).toFixed(1);
+                    
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0.9);
+                        
+                    tooltip.html(`
+                        <strong>${d.data.region}</strong><br>
+                        Count: ${d.data.count}<br>
+                        Percentage: ${percent}%
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style('opacity', 0);
+                });
+                
+            // Add labels
+            regionG.selectAll('.label')
+                .data(regionPie(regionData))
+                .enter()
+                .append('text')
+                .attr('class', 'label')
+                .attr('transform', d => `translate(${regionLabelArc.centroid(d)})`)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .style('fill', '#fff')
+                .text(d => {
+                    const percent = ((d.data.count / regionTotal) * 100).toFixed(1);
+                    return percent > 5 ? `${percent}%` : '';
+                });
+                
+            // Add title
+            regionSvg.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', width / 2)
+                .attr('y', 25)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .text('Haunted Places by Region');
+                
+            // Add legend
+            const regionLegend = regionSvg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${width - 150}, 50)`);
+                
+            regionData.forEach((d, i) => {
+                const legendRow = regionLegend.append('g')
+                    .attr('transform', `translate(0, ${i * 20})`);
+                    
+                legendRow.append('rect')
+                    .attr('width', 10)
+                    .attr('height', 10)
+                    .attr('fill', regionColorScale(d.region));
+                    
+                legendRow.append('text')
+                    .attr('x', 20)
+                    .attr('y', 10)
+                    .attr('text-anchor', 'start')
+                    .style('font-size', '12px')
+                    .text(d.region);
+            });
+            
+            // Helper function to get state name from ID
+            function getStateNameFromId(id) {
+                // This is a simplified mapping - in a real application, you'd want a complete mapping
+                const stateMap = {
+                    "1": "alabama", "2": "alaska", "4": "arizona", "5": "arkansas", 
+                    "6": "california", "8": "colorado", "9": "connecticut", "10": "delaware",
+                    "11": "district of columbia", "12": "florida", "13": "georgia", "15": "hawaii", 
+                    "16": "idaho", "17": "illinois", "18": "indiana", "19": "iowa", 
+                    "20": "kansas", "21": "kentucky", "22": "louisiana", "23": "maine", 
+                    "24": "maryland", "25": "massachusetts", "26": "michigan", "27": "minnesota", 
+                    "28": "mississippi", "29": "missouri", "30": "montana", "31": "nebraska", 
+                    "32": "nevada", "33": "new hampshire", "34": "new jersey", "35": "new mexico", 
+                    "36": "new york", "37": "north carolina", "38": "north dakota", "39": "ohio", 
+                    "40": "oklahoma", "41": "oregon", "42": "pennsylvania", "44": "rhode island", 
+                    "45": "south carolina", "46": "south dakota", "47": "tennessee", "48": "texas", 
+                    "49": "utah", "50": "vermont", "51": "virginia", "53": "washington", 
+                    "54": "west virginia", "55": "wisconsin", "56": "wyoming"
+                };
+                
+                return stateMap[id] || "unknown";
+            }
+        }
+        
+        // Correlation Visualization
+        function createCorrelationVisualization(data) {
+            const width = 960;
+            const height = 600;
+            const margin = { top: 100, right: 50, bottom: 50, left: 100 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            // Create SVG
+            const svg = d3.select('#correlation-matrix')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left}, ${margin.top})`);
+                
+            // Process data
+            const correlationData = data.correlation_matrix;
+            
+            // Extract unique variables
+            const variables = [...new Set(correlationData.map(d => d.x))];
+            
+            // Create scales
+            const xScale = d3.scaleBand()
+                .domain(variables)
+                .range([0, innerWidth])
+                .padding(0.05);
+                
+            const yScale = d3.scaleBand()
+                .domain(variables)
+                .range([0, innerHeight])
+                .padding(0.05);
+                
+            // Create color scale for correlation values
+            const colorScale = d3.scaleLinear()
+                .domain([-1, 0, 1])
+                .range(['#d8b365', '#f5f5f5', '#5ab4ac']);
+                
+            // Create tooltip
+            const tooltip = d3.select('body')
+                .append('div')
+                .attr('class', 'tooltip')
+                .style('opacity', 0);
+                
+            // Draw cells
+            g.selectAll('.cell')
+                .data(correlationData)
+                .enter()
+                .append('rect')
+                .attr('class', 'cell')
+                .attr('x', d => xScale(d.x))
+                .attr('y', d => yScale(d.y))
+                .attr('width', xScale.bandwidth())
+                .attr('height', yScale.bandwidth())
+                .attr('fill', d => colorScale(d.value))
+                .attr('stroke', '#ccc')
+                .attr('stroke-width', 0.5)
+                .on('mouseover', function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', 0.9);
+                        
+                    tooltip.html(`
+                        <strong>${d.x} - ${d.y}</strong><br>
+                        Correlation: ${d.value.toFixed(3)}
+                    `)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+                })
+                .on('mouseout', function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style('opacity', 0);
+                });
+                
+            // Add text labels for correlation values
+            g.selectAll('.cell-text')
+                .data(correlationData)
+                .enter()
+                .append('text')
+                .attr('class', 'cell-text')
+                .attr('x', d => xScale(d.x) + xScale.bandwidth() / 2)
+                .attr('y', d => yScale(d.y) + yScale.bandwidth() / 2)
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .style('font-size', '10px')
+                .style('fill', d => Math.abs(d.value) > 0.5 ? '#fff' : '#000')
+                .text(d => d.value.toFixed(2));
+                
+            // Add x-axis labels
+            g.selectAll('.x-label')
+                .data(variables)
+                .enter()
+                .append('text')
+                .attr('class', 'x-label')
+                .attr('x', d => xScale(d) + xScale.bandwidth() / 2)
+                .attr('y', -10)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text(d => d);
+                
+            // Add y-axis labels
+            g.selectAll('.y-label')
+                .data(variables)
+                .enter()
+                .append('text')
+                .attr('class', 'y-label')
+                .attr('x', -10)
+                .attr('y', d => yScale(d) + yScale.bandwidth() / 2)
+                .attr('text-anchor', 'end')
+                .attr('dy', '0.35em')
+                .style('font-size', '12px')
+                .text(d => d);
+                
+            // Add title
+            svg.append('text')
+                .attr('class', 'chart-title')
+                .attr('x', width / 2)
+                .attr('y', 30)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .text('Correlation Matrix of Variables');
+                
+            // Add legend
+            const legendWidth = 200;
+            const legendHeight = 15;
+            
+            const legendScale = d3.scaleLinear()
+                .domain([-1, 0, 1])
+                .range([0, legendWidth / 2, legendWidth]);
+                
+            const legendAxis = d3.axisBottom(legendScale)
+                .tickValues([-1, -0.5, 0, 0.5, 1])
+                .tickFormat(d3.format('.1f'));
+                
+            const legend = svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${width / 2 - legendWidth / 2}, ${height - 40})`);
+                
+            const defs = legend.append('defs');
+            
+            const linearGradient = defs.append('linearGradient')
+                .attr('id', 'correlation-gradient')
+                .attr('x1', '0%')
+                .attr('y1', '0%')
+                .attr('x2', '100%')
+                .attr('y2', '0%');
+                
+            linearGradient.append('stop')
+                .attr('offset', '0%')
+                .attr('stop-color', colorScale(-1));
+                
+            linearGradient.append('stop')
+                .attr('offset', '50%')
+                .attr('stop-color', colorScale(0));
+                
+            linearGradient.append('stop')
+                .attr('offset', '100%')
+                .attr('stop-color', colorScale(1));
+                
+            legend.append('rect')
+                .attr('width', legendWidth)
+                .attr('height', legendHeight)
+                .style('fill', 'url(#correlation-gradient)');
+                
+            legend.append('g')
+                .attr('transform', `translate(0, ${legendHeight})`)
+                .call(legendAxis);
+                
+            legend.append('text')
+                .attr('x', legendWidth / 2)
+                .attr('y', legendHeight + 30)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('Correlation Coefficient');
+        }
+    </script>
+</body>
+</html>

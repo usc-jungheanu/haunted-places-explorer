@@ -3,7 +3,8 @@ import sys
 import os
 import time
 import json
-from typing import Optional
+from typing import Optional, Dict
+import requests
 
 def check_docker_installed() -> bool:
     """Check if Docker is installed and running"""
@@ -51,7 +52,7 @@ def setup_elasticsearch() -> Optional[str]:
         print("Setting up ElasticSearch...")
         
         # Pull ElasticSearch image
-        subprocess.run(["docker", "pull", "elasticsearch:8.11.0"], check=True)
+        subprocess.run(["docker", "pull", "docker.elastic.co/elasticsearch/elasticsearch:7.17.0"], check=True)
         
         # Create ElasticSearch container
         subprocess.run([
@@ -59,15 +60,23 @@ def setup_elasticsearch() -> Optional[str]:
             "-p", "9200:9200",
             "-p", "9300:9300",
             "-e", "discovery.type=single-node",
-            "--name", "haunted_elastic",
-            "elasticsearch:8.11.0"
+            "-e", "xpack.security.enabled=false",
+            "--name", "haunted_elasticsearch",
+            "docker.elastic.co/elasticsearch/elasticsearch:7.17.0"
         ], check=True)
         
         # Wait for ElasticSearch to start
-        time.sleep(30)
+        time.sleep(60)
         
-        print("ElasticSearch setup complete!")
-        return "http://localhost:9200"
+        # Check if ElasticSearch is running
+        try:
+            response = requests.get("http://localhost:9200")
+            if response.status_code == 200:
+                print("ElasticSearch setup complete!")
+                return "http://localhost:9200"
+        except requests.RequestException:
+            print("ElasticSearch is not responding")
+            return None
         
     except subprocess.CalledProcessError as e:
         print(f"Error setting up ElasticSearch: {e}")
@@ -106,4 +115,4 @@ def main():
     print("\nConfiguration saved to search_config.json")
 
 if __name__ == "__main__":
-    main() 
+    main()

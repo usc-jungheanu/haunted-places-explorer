@@ -17,7 +17,7 @@ def add_simplified_memex_tab():
     st.header("MEMEX Tools (Simplified Version)")
     
     st.info("""
-    This is a simplified version of the MEMEX tools that works directly in Streamlit Cloud
+    This is a simplified version of the MEMEX tools that works directly in Streamlit
     without requiring Docker containers. It includes basic image analysis and geolocation
     capabilities to demonstrate the concepts.
     """)
@@ -186,4 +186,4 @@ def geoparser_simplified():
                 st.write(f"**Haunted places in {selected_state}:**")
                 folium_static(m)
     else:
-        st.warning("No state data available.") 
+        st.warning("No state data available.")
