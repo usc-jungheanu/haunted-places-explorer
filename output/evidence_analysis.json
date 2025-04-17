@@ -1,6 +1,16 @@
 {
     "evidence_counts": {
-        "Unknown": 9731
+        "Sound": 3382,
+        "Visual": 2937,
+        "Temperature": 580,
+        "Touch": 370,
+        "EMF": 15,
+        "Smell": 45,
+        "Movement": 580,
+        "Poltergeist": 10,
+        "Orbs": 47,
+        "EVP": 3,
+        "Unknown": 1762
     },
     "apparition_counts": [
         {

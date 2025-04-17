@@ -210,5 +210,100 @@
             "country": "United States",
             "count": 9731
         }
+    ],
+    "top_apparition_by_state": [
+        {
+            "state": "california",
+            "apparition_type": "Ghost",
+            "count": 352
+        },
+        {
+            "state": "texas",
+            "apparition_type": "Unknown",
+            "count": 222
+        },
+        {
+            "state": "pennsylvania",
+            "apparition_type": "Ghost",
+            "count": 212
+        },
+        {
+            "state": "michigan",
+            "apparition_type": "Unknown",
+            "count": 171
+        },
+        {
+            "state": "ohio",
+            "apparition_type": "Unknown",
+            "count": 155
+        },
+        {
+            "state": "new york",
+            "apparition_type": "Ghost",
+            "count": 143
+        },
+        {
+            "state": "kentucky",
+            "apparition_type": "Unknown",
+            "count": 130
+        },
+        {
+            "state": "illinois",
+            "apparition_type": "Unknown",
+            "count": 110
+        },
+        {
+            "state": "massachusetts",
+            "apparition_type": "Unknown",
+            "count": 110
+        },
+        {
+            "state": "indiana",
+            "apparition_type": "Unknown",
+            "count": 101
+        },
+        {
+            "state": "florida",
+            "apparition_type": "Unknown",
+            "count": 100
+        },
+        {
+            "state": "wisconsin",
+            "apparition_type": "Unknown",
+            "count": 96
+        },
+        {
+            "state": "missouri",
+            "apparition_type": "Ghost",
+            "count": 92
+        },
+        {
+            "state": "georgia",
+            "apparition_type": "Unknown",
+            "count": 75
+        },
+        {
+            "state": "virginia",
+            "apparition_type": "Ghost",
+            "count": 74
+        }
+    ],
+    "region_counts": [
+        {
+            "region": "South",
+            "count": 3067
+        },
+        {
+            "region": "Midwest",
+            "count": 2601
+        },
+        {
+            "region": "West",
+            "count": 2171
+        },
+        {
+            "region": "Northeast",
+            "count": 1892
+        }
     ]
 }
