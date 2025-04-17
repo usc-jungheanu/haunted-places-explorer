@@ -11,6 +11,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import re
 import logging
+from simplified_memex import add_simplified_memex_tab
+from data_storage import load_processed_data
+from data_processor import DataProcessor
+from memex_integration import add_memex_tab
+from streamlit_d3_integration import add_d3_visualizations_tab
 
 # Set page config
 st.set_page_config(
@@ -155,7 +160,6 @@ def load_data():
         with st.spinner("Processing data... This may take a moment."):
             try:
                 # Process the data
-                from data_processor import DataProcessor
                 data_processor = DataProcessor(
                     os.path.join(DATA_DIR, "haunted_places_v2.tsv"),
                     OUTPUT_DIR
@@ -170,7 +174,6 @@ def load_data():
                 return False
     
     # Load the processed data into the data storage for MEMEX tools
-    from data_storage import load_processed_data
     load_processed_data(OUTPUT_DIR)
     
     return True
@@ -260,8 +263,7 @@ with st.sidebar:
         "📍 Location Analysis": "Location Analysis",
         "📊 Correlation Analysis": "Correlation Analysis",
         "📈 D3 Visualizations": "D3 Visualizations",
-        "🔬 MEMEX Tools": "MEMEX Tools",
-        "💾 Data Storage": "Data Storage Status"
+        "🔬 MEMEX Tools": "MEMEX Tools"
     }
     
     # Create buttons for each menu option
@@ -344,13 +346,29 @@ elif page == "Time Analysis":
             # Time of day analysis
             if 'time_of_day_counts' in data['time'] and data['time']['time_of_day_counts']:
                 st.subheader("Sightings by Time of Day")
-                df_times = pd.DataFrame(data['time']['time_of_day_counts'])
-                if not df_times.empty and 'time_of_day' in df_times.columns and 'count' in df_times.columns:
-                    fig = px.pie(df_times, values='count', names='time_of_day',
-                                title='Distribution of Sightings by Time of Day')
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("No time of day data available")
+                
+                # Fix: Check if time_of_day_counts is a dictionary and convert properly
+                try:
+                    if isinstance(data['time']['time_of_day_counts'], dict):
+                        # Create explicit DataFrame with named columns from dictionary
+                        df_times = pd.DataFrame({
+                            'time_of_day': list(data['time']['time_of_day_counts'].keys()),
+                            'count': list(data['time']['time_of_day_counts'].values())
+                        })
+                    else:
+                        # If it's already a list of dictionaries
+                        df_times = pd.DataFrame(data['time']['time_of_day_counts'])
+                    
+                    # Now check if we have the needed columns and proceed with visualization
+                    if not df_times.empty and 'time_of_day' in df_times.columns and 'count' in df_times.columns:
+                        fig = px.pie(df_times, values='count', names='time_of_day',
+                                    title='Distribution of Sightings by Time of Day')
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("No time of day data available")
+                except Exception as e:
+                    st.error(f"Error displaying time of day data: {str(e)}")
+                    st.info("Time of day data format may need adjustment")
             else:
                 st.info("No time of day data available")
         
@@ -550,56 +568,5 @@ elif page == "D3 Visualizations":
 
 # MEMEX Tools page
 elif page == "MEMEX Tools":
-    # We don't need a duplicate header here since the page title will show
-    # Check if MEMEX tools code is available
-    try:
-        from streamlit_d3_integration import add_memex_tools_tab
-        add_memex_tools_tab()
-    except ImportError:
-        # Fall back to simplified version
-        try:
-            from simplified_memex import add_simplified_memex_tab
-            add_simplified_memex_tab()
-        except ImportError:
-            st.error("MEMEX tools modules not found. Please create required modules first.")
-
-# Data Storage Status page
-elif page == "Data Storage Status":
-    # We don't need a duplicate header here since the page title will show
-    # Check if data storage status code is available
-    try:
-        from streamlit_d3_integration import add_data_status_tab
-        add_data_status_tab()
-    except ImportError:
-        st.error("Data storage status module not found. Please create streamlit_d3_integration.py first.")
-        
-        # Manual check
-        st.info("Manually checking Elasticsearch and Solr status...")
-        
-        # Check Elasticsearch
-        try:
-            from elasticsearch import Elasticsearch
-            es = Elasticsearch(["http://localhost:9200"])
-            es_info = es.info()
-            st.success("✅ Elasticsearch is running")
-            
-            # Check if haunted_places index exists
-            if es.indices.exists(index='haunted_places'):
-                count = es.count(index='haunted_places')['count']
-                st.info(f"Haunted Places Index contains {count} documents")
-            else:
-                st.warning("Haunted Places Index does not exist")
-        except Exception as e:
-            st.error("❌ Elasticsearch is not running or not accessible")
-            st.info(f"Error details: {str(e)}")
-        
-        # Check Solr
-        try:
-            import pysolr
-            solr = pysolr.Solr('http://localhost:8983/solr/haunted_places', always_commit=True)
-            results = solr.search('*:*', rows=0)
-            st.success("✅ Solr is running")
-            st.info(f"Haunted Places Core contains {results.hits} documents")
-        except Exception as e:
-            st.error("❌ Solr is not running or not accessible")
-            st.info(f"Error details: {str(e)}")
+    st.header("MEMEX Tools")
+    add_simplified_memex_tab()
