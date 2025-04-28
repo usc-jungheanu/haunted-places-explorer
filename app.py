@@ -25,9 +25,70 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Force the theme settings from config.toml (must come AFTER set_page_config)
 st.markdown("""
 <style>
-    /* All your existing CSS rules */
+    /* Force light theme with custom text color */
+    :root {
+        --background-color: white;
+        --secondary-background-color: #e7e9ec;
+        --text-color: #717198;
+    }
+    
+    /* Make ALL tab labels white throughout the application */
+    .stTabs [data-baseweb="tab"] {
+        color: white !important;
+        font-weight: bold !important;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #2c2c2c;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    /* Make expander headers white - multiple selectors for better coverage */
+    button[kind="expandable"] div[data-testid="StyledFullScreenFrame"] > div {
+        color: white !important;
+    }
+    .streamlit-expanderHeader {
+        color: white !important;
+        font-weight: bold !important;
+    }
+    [data-testid="stExpander"] details summary p {
+        color: white !important;
+    }
+    [data-testid="stExpander"] summary {
+        color: white !important;
+    }
+    [data-testid="stExpander"] summary p {
+        color: white !important;
+    }
+    
+    /* Override native Streamlit theme selector */
+    section[data-testid="stSidebarUserContent"] div[data-testid="stToolbar"] {
+        display: none !important;
+    }
+    
+    /* Ensure sidebar text is properly visible */
+    [data-testid="stSidebar"] {
+        background-color: #2c2c2c !important;
+    }
+    
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] .stMarkdown p,
+    [data-testid="stSidebar"] .stMarkdown strong,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        color: white !important;
+    }
     
     /* Remove the sidebar collapse button completely */
     section[data-testid="stSidebar"] > div > div:first-child {
@@ -61,25 +122,14 @@ st.markdown("""
 <style>
     .main {
         background-color: #1a1a1a;
-        color: #f0f0f0;
+        color: white;
     }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #2c2c2c;
-        border-radius: 4px 4px 0px 0px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
+    /* Tab styles already defined in the first CSS block */
     .stTabs [aria-selected="true"] {
         background-color: #5a5ae2;
     }
     h1, h2, h3 {
-        color: #e0e0e0;
+        color: white;
     }
     .stSidebar {
         background-color: #2c2c2c;
@@ -108,7 +158,7 @@ st.markdown("""
     /* Make dataframes more readable */
     .dataframe {
         background-color: #2c2c2c !important;
-        color: #f0f0f0 !important;
+        color: white !important;
         border-radius: 8px !important;
     }
     .dataframe th {
@@ -121,7 +171,7 @@ st.markdown("""
         text-align: left;
         padding: 0.75rem 1rem;
         background-color: #2c2c2c;
-        color: #f0f0f0;
+        color: white;
         border-radius: 6px;
         margin-bottom: 0.5rem;
         border: none;
@@ -244,11 +294,11 @@ data = {
 st.title("👻 Haunted Places Analysis")
 # Improved sidebar with modern navigation
 with st.sidebar:
-    st.title("DSCI 550 HW3 Assignment")
+    st.markdown("<h1 style='color: #5E6592;'>DSCI 550 HW3 Assignment</h1>", unsafe_allow_html=True)
     st.markdown("---")
     
     # Modern-looking menu with buttons
-    st.subheader("👻 Navigation")
+    st.markdown("<h3 style='color: #5E6592;'>👻 Navigation</h3>", unsafe_allow_html=True)
     
     # Initialize session state for current page if it doesn't exist
     if 'current_page' not in st.session_state:
@@ -334,9 +384,25 @@ elif page == "Time Analysis":
                 st.subheader("Haunted Sightings by Year")
                 df_years = pd.DataFrame(data['time']['year_counts'])
                 if not df_years.empty and 'year' in df_years.columns and 'count' in df_years.columns:
+                    # Filter out future years (> 2023)
+                    current_year = 2023  # Set a reasonable cutoff year
+                    df_years = df_years[df_years['year'] <= current_year]
+                    
                     fig = px.line(df_years, x='year', y='count', 
                                 title='Number of Haunted Sightings Over Time')
+                    
+                    # Set default x-axis range from 1900 to current year, but allow zooming
+                    fig.update_layout(
+                        xaxis=dict(
+                            range=[1900, current_year],
+                            autorange=False
+                        )
+                    )
+                    
                     st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Add a note about panning to see older data
+                    st.info("💡 **Tips:** Use the 'Pan' tool in the chart toolbar to drag and see historical data before 1900. Double-click anywhere on the chart to reset the view.")
                 else:
                     st.info("No year data available")
             else:

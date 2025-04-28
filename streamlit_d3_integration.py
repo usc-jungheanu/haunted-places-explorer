@@ -158,6 +158,10 @@ def add_d3_visualizations_tab():
                         # Drop NaN years
                         year_df = year_df.dropna(subset=["year"])
                         
+                        # Filter out future years (> 2023)
+                        current_year = 2023  # Set a reasonable cutoff year
+                        year_df = year_df[year_df["year"] <= current_year]
+                        
                         # Sort by year
                         year_df = year_df.sort_values("year")
                         
@@ -172,7 +176,12 @@ def add_d3_visualizations_tab():
                         fig_line.update_layout(
                             xaxis_title="Year",
                             yaxis_title="Number of Reported Hauntings",
-                            hovermode="x unified"
+                            hovermode="x unified",
+                            # Set default x-axis range from 1900 to current year, but allow zooming
+                            xaxis=dict(
+                                range=[1900, current_year],
+                                autorange=False
+                            )
                         )
                         
                         # Add smoothed trendline
@@ -197,6 +206,9 @@ def add_d3_visualizations_tab():
                         
                         st.plotly_chart(fig_line, use_container_width=True)
                         
+                        # Add a note about panning to see older data
+                        st.info("💡 **Tips:** Use the 'Pan' tool in the chart toolbar to drag and see historical data before 1900. Double-click anywhere on the chart to reset the view.")
+                        
                         # Create a histogram by decades
                         year_df["decade"] = (year_df["year"] // 10) * 10
                         decade_counts = year_df.groupby("decade")["count"].sum().reset_index()
@@ -212,7 +224,13 @@ def add_d3_visualizations_tab():
                         fig_bar.update_layout(
                             xaxis_title="Decade",
                             yaxis_title="Number of Reported Hauntings",
-                            xaxis=dict(tickmode="array", tickvals=list(decade_counts["decade"]))
+                            xaxis=dict(
+                                tickmode="array", 
+                                tickvals=list(decade_counts["decade"]),
+                                # Set default range from 1900 to current
+                                range=[1900, current_year],
+                                autorange=False
+                            )
                         )
                         
                         st.plotly_chart(fig_bar, use_container_width=True)
