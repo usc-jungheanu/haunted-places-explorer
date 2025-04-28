@@ -14,7 +14,7 @@ from data_storage import data_store, search_places, get_places_by_state
 def add_simplified_memex_tab():
     """Add simplified MEMEX tools tab that works without Docker"""
     
-    st.header("MEMEX Tools (Simplified Version)")
+    # st.header("MEMEX Tools (Simplified Version)")
     
     st.info("""
     This is a simplified version of the MEMEX tools that works directly in Streamlit
@@ -22,7 +22,7 @@ def add_simplified_memex_tab():
     capabilities to demonstrate the concepts.
     """)
     
-    tab1, tab2 = st.tabs(["ImageSpace (Simplified)", "GeoParser (Simplified)"])
+    tab1, tab2 = st.tabs(["ImageSpace", "GeoParser"])
     
     with tab1:
         image_space_simplified()
