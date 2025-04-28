@@ -87,7 +87,41 @@ class DataProcessor:
             logger.info("Preparing map data")
             map_data = []
             
+            # Define common evidence types to look for - same as in prepare_evidence_analysis
+            evidence_keywords = {
+                "Sound": ["sound", "noise", "voice", "whisper", "footstep", "scream", "crying", "laugh", "music"],
+                "Visual": ["appear", "figure", "shadow", "apparition", "image", "manifestation", "vision", "ghost"],
+                "Temperature": ["cold", "chill", "temperature", "freezing", "icy", "hot", "warm", "heat"],
+                "Touch": ["touch", "grab", "push", "pull", "physical", "sensation", "feel"],
+                "EMF": ["emf", "electromagnetic", "electricity", "electronic", "battery", "device"],
+                "Smell": ["smell", "odor", "scent", "perfume", "burning"],
+                "Movement": ["move", "movement", "floating", "flying", "throw", "slam", "door", "window"],
+                "Poltergeist": ["poltergeist", "thrown", "move", "thrown", "breaking"],
+                "Orbs": ["orb", "ball of light", "glowing ball"],
+                "EVP": ["evp", "electronic voice", "recording", "audio"]
+            }
+            
+            # Helper function to extract evidence types from description
+            def extract_evidence_from_description(description):
+                if pd.isna(description) or not isinstance(description, str):
+                    return "Unknown"
+                
+                description = description.lower()
+                found_evidence = []
+                
+                for evidence_type, keywords in evidence_keywords.items():
+                    for keyword in keywords:
+                        if keyword.lower() in description:
+                            found_evidence.append(evidence_type)
+                            break
+                
+                if found_evidence:
+                    return ", ".join(found_evidence)
+                else:
+                    return "Unknown"
+            
             for _, row in self.data.iterrows():
+                evidence = extract_evidence_from_description(row.get('description', ''))
                 location = {
                     'location': str(row.get('location', '')),
                     'state': str(row.get('state', '')),
@@ -95,8 +129,8 @@ class DataProcessor:
                     'latitude': float(row.get('latitude', 0)),
                     'longitude': float(row.get('longitude', 0)),
                     'description': str(row.get('description', '')),
-                    'date': str(row.get('date', '')),
-                    'evidence': str(row.get('evidence', ''))
+                    'date': str(row.get('evidence_date', '')),
+                    'evidence': str(evidence)
                 }
                 map_data.append(location)
             
