@@ -331,14 +331,14 @@ def add_d3_visualizations_tab():
                             if isinstance(data["time"]["time_of_day_counts"], list):
                                 # If it's a list of dictionaries
                                 time_df = pd.DataFrame(data["time"]["time_of_day_counts"])
-                                if "time" not in time_df.columns and "name" in time_df.columns:
+                                if "time_of_day" not in time_df.columns and "name" in time_df.columns:
                                     time_df = time_df.rename(columns={"name": "time"})
                                 if "count" not in time_df.columns and "value" in time_df.columns:
                                     time_df = time_df.rename(columns={"value": "count"})
                             else:
                                 # If it's a dictionary
                                 time_df = pd.DataFrame({
-                                    "time": list(data["time"]["time_of_day_counts"].keys()),
+                                    "time_of_day": list(data["time"]["time_of_day_counts"].keys()),
                                     "count": list(data["time"]["time_of_day_counts"].values())
                                 })
                             
@@ -346,9 +346,9 @@ def add_d3_visualizations_tab():
                             time_order = ["Morning", "Afternoon", "Evening", "Night", "Midnight"]
                             
                             # Create a category for time with proper ordering
-                            if all(time in time_order for time in time_df["time"]):
-                                time_df["time"] = pd.Categorical(time_df["time"], categories=time_order, ordered=True)
-                                time_df = time_df.sort_values("time")
+                            if all(time in time_order for time in time_df["time_of_day"]):
+                                time_df["time_of_day"] = pd.Categorical(time_df["time_of_day"], categories=time_order, ordered=True)
+                                time_df = time_df.sort_values("time_of_day")
                             
                             # Create a gauge chart for time of day
                             # Setup color coding for time of day
@@ -364,9 +364,9 @@ def add_d3_visualizations_tab():
                             fig_pie = px.pie(
                                 time_df,
                                 values="count",
-                                names="time",
+                                names="time_of_day",
                                 title="Hauntings by Time of Day",
-                                color="time",
+                                color="time_of_day",
                                 color_discrete_map=colors
                             )
                             
@@ -386,8 +386,8 @@ def add_d3_visualizations_tab():
                                     theta=[180],  # Center the bar
                                     width=[180],  # Cover half the circle
                                     base=cumulative,
-                                    marker_color=colors.get(row["time"], "#000000"),
-                                    name=f"{row['time']} ({row['count']} hauntings)",
+                                    marker_color=colors.get(row["time_of_day"], "#000000"),
+                                    name=f"{row['time_of_day']} ({row['count']} hauntings)",
                                     hoverinfo="name+text",
                                     text=[f"{row['count']} hauntings ({value:.1%})"]
                                 ))
