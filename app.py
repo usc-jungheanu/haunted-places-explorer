@@ -5,6 +5,7 @@ import os
 import plotly.express as px
 import plotly.graph_objects as go
 import folium
+from folium import plugins
 from streamlit_folium import folium_static
 from typing import Dict, List, Any
 import numpy as np
@@ -347,6 +348,141 @@ if page == "Home":
 
 elif page == "Map Visualization":
     st.header("Haunted Places Map")
+    
+    if 'map' in data and data['map'] and 'map_data' in data['map']:
+        # Create a map centered on the US
+        m = folium.Map(location=[39.8283, -98.5795], zoom_start=4, tiles='CartoDB dark_matter')
+        
+        # Add marker clustering for better performance
+        marker_cluster = plugins.MarkerCluster(
+            name="Haunted Places",
+            overlay=True,
+            control=False,
+            icon_create_function=None
+        )
+        
+        # Limit the number of markers for better performance
+        locations = data['map']['map_data']
+        max_markers = 500  # Adjust this number based on performance needs
+        
+        # Information about the total dataset
+        total_locations = len(locations)
+        filtered_locations = len([loc for loc in locations if loc['latitude'] != 0 and loc['longitude'] != 0])
+        
+        # Create a sampling notice if we're limiting markers
+        if filtered_locations > max_markers:
+            st.info(f"⚡ For performance reasons, showing a random sample of {max_markers} locations out of {filtered_locations} valid locations.")
+            # Random sample for better distribution
+            import random
+            valid_locations = [loc for loc in locations if loc['latitude'] != 0 and loc['longitude'] != 0]
+            locations_to_display = random.sample(valid_locations, max_markers)
+        else:
+            locations_to_display = [loc for loc in locations if loc['latitude'] != 0 and loc['longitude'] != 0]
+        
+        # Add markers to the cluster
+        for location in locations_to_display:
+            # Simplified popup with less text for better performance
+            popup_text = f"""
+            <b>{location['location']}</b><br>
+            {location['state']}
+            """
+            folium.Marker(
+                [location['latitude'], location['longitude']],
+                popup=popup_text,
+                tooltip=location['location']
+            ).add_to(marker_cluster)
+        
+        # Add the marker cluster to the map
+        marker_cluster.add_to(m)
+        
+        # Add layer control to toggle marker cluster
+        folium.LayerControl().add_to(m)
+        
+        # Display the map
+        folium_static(m)
+        
+        # Display additional stats below the map
+        st.markdown(f"**Total Locations in Dataset:** {total_locations}")
+        st.markdown(f"**Locations with Valid Coordinates:** {filtered_locations}")
+        
+        # Add a button to show full data table with improved display
+        if st.button("Show Data Table"):
+            # Create a copy of the data to avoid modifying the original
+            locations_df = pd.DataFrame(locations)
+            
+            # Select only the most relevant columns for display
+            display_columns = ['location', 'state', 'country', 'latitude', 'longitude']
+            
+            # Add description if it exists and isn't mostly empty
+            if 'description' in locations_df.columns and locations_df['description'].notna().sum() > len(locations_df) * 0.1:
+                # Truncate description to make it more readable
+                locations_df['description'] = locations_df['description'].apply(
+                    lambda x: str(x)[:100] + '...' if isinstance(x, str) and len(str(x)) > 100 else x
+                )
+                display_columns.append('description')
+            
+            # Add date if it exists and isn't mostly empty/NaN
+            if 'date' in locations_df.columns and locations_df['date'].notna().sum() > len(locations_df) * 0.1:
+                display_columns.append('date')
+
+            if 'evidence' in locations_df.columns:
+                display_columns.append('evidence')
+                
+                def format_evidence(evidence_str):
+                    if evidence_str == "Unknown" or pd.isna(evidence_str):
+                        return "Unknown"
+                    return evidence_str
+                
+                # Apply formatting if not in an environment where it would cause issues
+                try:
+                    locations_df['evidence_formatted'] = locations_df['evidence'].apply(format_evidence)
+                    locations_df['evidence'] = locations_df['evidence_formatted']
+                    locations_df = locations_df.drop(columns=['evidence_formatted'])
+                except Exception as e:
+                    logger.warning(f"Could not format evidence column: {e}")
+            
+            # Add apparition_type if it exists
+            if 'apparition_type' in locations_df.columns and locations_df['apparition_type'].notna().sum() > len(locations_df) * 0.1:
+                display_columns.append('apparition_type')
+            
+            # Filter the DataFrame to only include the selected columns if they exist
+            display_df = locations_df[[col for col in display_columns if col in locations_df.columns]].copy()
+            
+            # Replace NaN values with more user-friendly text
+            display_df = display_df.fillna({
+                'date': 'Date unknown',
+                'evidence': 'No evidence recorded',
+                'description': 'No description available',
+                'apparition_type': 'Type unknown'
+            })
+            
+            # Create nicer column headers for display
+            column_map = {
+                'location': 'Location',
+                'state': 'State',
+                'country': 'Country',
+                'latitude': 'Latitude',
+                'longitude': 'Longitude',
+                'description': 'Description',
+                'date': 'Date',
+                'evidence': 'Evidence',
+                'apparition_type': 'Apparition Type'
+            }
+            display_df = display_df.rename(columns=column_map)
+            
+            # Display the data table with pagination for better performance
+            st.dataframe(display_df)
+            
+            # Add a download button for the full dataset
+            csv = display_df.to_csv(index=False)
+            st.download_button(
+                label="Download data as CSV",
+                data=csv,
+                file_name="haunted_places_data.csv",
+                mime="text/csv",
+            )
+    else:
+        st.warning("No map data available")
     
     if 'map' in data and data['map'] and 'map_data' in data['map']:
         # Create a map centered on the US
