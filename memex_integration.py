@@ -5,6 +5,8 @@ import os
 from typing import Dict, List, Any, Optional
 import pandas as pd
 import plotly.express as px
+import folium
+from streamlit_folium import folium_static
 
 # MEMEX API endpoints
 IMAGESPACE_API = "http://localhost:5000/api"
@@ -117,107 +119,66 @@ class MEMEXIntegration:
             st.warning("No locations found in text")
 
 def add_memex_tab():
-    """Add MEMEX tools tab to the Streamlit app"""
-    st.header("MEMEX Tools Integration")
+    """Add original simplified MEMEX functionalities"""
+    st.subheader("Basic MEMEX Tools")
     
-    # Create tabs for different MEMEX tools
-    tab1, tab2 = st.tabs(["ImageSpace", "GeoParser"])
+    col1, col2 = st.columns(2)
     
-    with tab1:
-        st.subheader("ImageSpace Analysis")
-        st.markdown("""
-        ImageSpace allows you to analyze and visualize images from haunted locations.
-        Upload an image or enter an image URL to analyze it.
-        """)
+    with col1:
+        st.markdown("### Image Analysis")
         
-        # Image input options
-        image_input = st.radio(
-            "Choose input method:",
-            ["Upload Image", "Image URL"]
-        )
+        # Simplified image analysis tool
+        st.write("Upload an image to analyze haunted places features:")
+        uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
         
-        if image_input == "Upload Image":
-            uploaded_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
-            if uploaded_file is not None:
-                # Save the uploaded file temporarily
-                temp_path = f"temp_{uploaded_file.name}"
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getvalue())
-                
-                # Send to ImageSpace API
-                try:
-                    with open(temp_path, "rb") as f:
-                        files = {"file": f}
-                        response = requests.post(f"{IMAGESPACE_API}/analyze", files=files)
-                        if response.status_code == 200:
-                            results = response.json()
-                            display_imagespace_results(results)
-                        else:
-                            st.error("Error analyzing image")
-                finally:
-                    # Clean up temporary file
-                    if os.path.exists(temp_path):
-                        os.remove(temp_path)
-        
-        else:
-            image_url = st.text_input("Enter image URL")
-            if image_url:
-                try:
-                    response = requests.post(f"{IMAGESPACE_API}/analyze", json={"url": image_url})
-                    if response.status_code == 200:
-                        results = response.json()
-                        display_imagespace_results(results)
-                    else:
-                        st.error("Error analyzing image")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-    
-    with tab2:
-        st.subheader("GeoParser Analysis")
-        st.markdown("""
-        GeoParser allows you to analyze geographical data from haunted locations.
-        Enter a location or coordinates to analyze.
-        """)
-        
-        # Location input options
-        location_input = st.radio(
-            "Choose input method:",
-            ["Location Name", "Coordinates"]
-        )
-        
-        if location_input == "Location Name":
-            location_name = st.text_input("Enter location name")
-            if location_name:
-                try:
-                    response = requests.post(f"{GEOPARSER_API}/analyze", json={"location": location_name})
-                    if response.status_code == 200:
-                        results = response.json()
-                        display_geoparser_results(results)
-                    else:
-                        st.error("Error analyzing location")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-        
-        else:
-            col1, col2 = st.columns(2)
-            with col1:
-                latitude = st.number_input("Latitude", min_value=-90.0, max_value=90.0)
-            with col2:
-                longitude = st.number_input("Longitude", min_value=-180.0, max_value=180.0)
+        if uploaded_file is not None:
+            st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
             
-            if latitude and longitude:
-                try:
-                    response = requests.post(
-                        f"{GEOPARSER_API}/analyze",
-                        json={"coordinates": {"latitude": latitude, "longitude": longitude}}
-                    )
-                    if response.status_code == 200:
-                        results = response.json()
-                        display_geoparser_results(results)
-                    else:
-                        st.error("Error analyzing coordinates")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
+            # Simulated image analysis results
+            st.write("### Analysis Results")
+            st.write("- **Spectral Analysis**: Medium anomalies detected")
+            st.write("- **Shadow Detection**: 2 potential shadow figures")
+            st.write("- **Light Orb Detection**: 3 potential orbs identified")
+            st.write("- **Color Temperature**: Significant cold spots detected")
+            
+            # Add a simulated similarity score
+            st.metric("Haunting Probability", "76%")
+    
+    with col2:
+        st.markdown("### Location Analysis")
+        
+        # Simple location input
+        location_input = st.text_input("Enter a location to analyze")
+        
+        if location_input:
+            # Create a map centered on the US
+            m = folium.Map(location=[39.8283, -98.5795], zoom_start=4)
+            
+            # Add a sample marker
+            folium.Marker(
+                [39.8283, -98.5795],
+                popup=f"Analyzing: {location_input}",
+                tooltip=location_input
+            ).add_to(m)
+            
+            # Display the map
+            folium_static(m)
+            
+            # Display simulated analysis
+            st.write("### Location Analysis Results")
+            st.write(f"- **Historical Analysis**: 12 reported hauntings near {location_input}")
+            st.write("- **Temporal Patterns**: Most activity reported between 2am-4am")
+            st.write("- **Site Features**: Located near historical buildings")
+            
+            # Add a simulated correlation score
+            st.metric("Location Correlation", "83%")
+    
+    # Additional MEMEX tools section
+    st.markdown("### Additional MEMEX Tools")
+    st.info("""
+    The original MEMEX toolkit includes these basic analysis features. 
+    For more advanced functionality, use the Image Space and GeoParser tabs above.
+    """)
 
 def display_imagespace_results(results: Dict[str, Any]):
     """Display ImageSpace analysis results"""

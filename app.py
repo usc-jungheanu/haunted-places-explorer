@@ -18,6 +18,112 @@ from data_processor import DataProcessor
 from memex_integration import add_memex_tab
 from streamlit_d3_integration import add_d3_visualizations_tab
 
+# Import new modules - handle gracefully if not available
+try:
+    from scripts.image_space_tab import add_image_space_tab
+    image_space_available = True
+except ImportError:
+    image_space_available = False
+
+try:
+    from scripts.geoparser_tab import add_geoparser_tab
+    geoparser_available = True
+except ImportError:
+    geoparser_available = False
+
+try:
+    from scripts.search_tab import add_search_tab
+    search_available = True
+except ImportError:
+    search_available = False
+
+# Define the enhanced MEMEX tab function to integrate Image Space and GeoParser
+def add_enhanced_memex_tab():
+    """Add enhanced MEMEX tab with integration of Image Space and GeoParser functionalities"""
+    st.header("MEMEX Tools Dashboard")
+    
+    # Add a general summary of the MEMEX tools
+    st.markdown("""
+    **MEMEX Tools** provide advanced analysis capabilities for haunted places investigation. 
+    Below are specialized modules for image analysis and geographic data processing.
+    """)
+    
+    # Create tabs for MEMEX components - removed Basic Tools
+    memex_tabs = st.tabs(["Image Space", "GeoParser"])
+    
+    # Tab 1: Image Space
+    with memex_tabs[0]:
+        # Add summary description for Image Space
+        st.markdown("""
+        ### Image Space
+        
+        This module allows you to analyze images for paranormal evidence through:
+        - **Image Upload**: Process individual images for spectral analysis
+        - **Batch Processing**: Process multiple images at once for pattern recognition
+        - **Image Explorer**: Explore uploaded images and their extracted features
+        
+        **Important Notes:**
+        - Images must be processed through Image Upload or Batch Processing before they appear in Image Explorer
+        - For large image collections (like 10,000+ images), use Batch Processing with smaller batches (100-500 images)
+        - Processing all images at once may strain system resources
+        
+        *Note: Requires Docker with Tika running for full functionality*
+        """)
+        
+        # Line separator
+        st.markdown("---")
+        
+        if image_space_available:
+            # Check if the add_image_space_tab function accepts a customize_batch parameter
+            import inspect
+            try:
+                params = inspect.signature(add_image_space_tab).parameters
+                if 'customize_batch' in params:
+                    # If the function supports customization, pass the parameter
+                    add_image_space_tab(customize_batch=True)
+                else:
+                    # Otherwise, call it normally and add our own batch processing suggestions
+                    add_image_space_tab()
+                    # Add additional UI guidance for batch processing
+                    st.info("""
+                    **💡 Processing Large Image Collections:**
+                    
+                    If you have thousands of images, consider:
+                    1. Processing in smaller batches of 100-500 images
+                    2. Starting with a representative sample of images
+                    3. Monitoring system resources during processing
+                    """)
+            except Exception as e:
+                # In case of any errors, fallback to standard call
+                add_image_space_tab()
+                st.warning(f"Encountered an issue customizing batch processing: {str(e)}")
+        else:
+            st.warning("Image Space module is not available. Please check if scripts/image_space_tab.py exists and dependencies are installed.")
+            st.info("The Image Space feature would allow you to upload, analyze, and process images for paranormal evidence.")
+    
+    # Tab 2: GeoParser
+    with memex_tabs[1]:
+        # Add summary description for GeoParser
+        st.markdown("""
+        ### GeoParser
+        
+        This module helps analyze text for location data and geographic patterns:
+        - **Text Analysis**: Extract location entities from haunted place descriptions
+        - **Location Mapping**: Visualize extracted locations on interactive maps
+        - **Historical Correlation**: Connect locations to historical events
+        
+        *Note: Requires the Mordecai geoparsing library for full functionality*
+        """)
+        
+        # Line separator
+        st.markdown("---")
+        
+        if geoparser_available:
+            add_geoparser_tab()
+        else:
+            st.warning("GeoParser module is not available. Please check if scripts/geoparser_tab.py exists and dependencies are installed.")
+            st.info("The GeoParser feature would allow you to analyze location data and extract geographic information from text.")
+
 # Set page config
 st.set_page_config(
     page_title="Haunted Places Analysis",
@@ -317,6 +423,10 @@ with st.sidebar:
         "🔬 MEMEX Tools": "MEMEX Tools"
     }
     
+    # Add Search Tools option
+    if search_available:
+        menu_options["🔎 Search Tools"] = "Search"
+    
     # Create buttons for each menu option
     for emoji_label, page_name in menu_options.items():
         button_style = "primary" if st.session_state.current_page == page_name else "secondary"
@@ -342,12 +452,24 @@ if page == "Home":
     - **Correlation Analysis**: Discover relationships between different variables
     - **D3 Visualizations**: Explore interactive D3.js visualizations
     - **MEMEX Tools**: Use advanced image and location analysis tools
+    - **Search Tools**: Search and discover haunted places using Solr and ElasticSearch
     
     Use the sidebar to navigate between different visualizations.
     """)
 
 elif page == "Map Visualization":
     st.header("Haunted Places Map")
+    
+    # Add summary description for Map Visualization
+    st.markdown("""
+    This visualization displays the geographic distribution of haunted places across the United States:
+    - **Interactive Map**: Explore locations with reported paranormal activity
+    - **Clustered Markers**: Click on clusters to see detailed information about haunted sites
+    - **Data Table**: View and download the complete dataset below the map
+    """)
+    
+    # Line separator
+    st.markdown("---")
     
     if 'map' in data and data['map'] and 'map_data' in data['map']:
         # Create a map centered on the US
@@ -511,6 +633,17 @@ elif page == "Map Visualization":
 elif page == "Time Analysis":
     st.header("Temporal Analysis")
     
+    # Add summary description for Time Analysis
+    st.markdown("""
+    This analysis explores the temporal patterns of haunted place reports:
+    - **Yearly Trends**: Visualize how haunting reports have changed over time
+    - **Time of Day**: Discover when paranormal activity is most frequently reported
+    - **Daylight Analysis**: Examine correlations between daylight hours and reported hauntings by state
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
     if 'time' in data and data['time']:
         col1, col2 = st.columns(2)
         
@@ -592,6 +725,17 @@ elif page == "Time Analysis":
 elif page == "Evidence Analysis":
     st.header("Evidence Analysis")
     
+    # Add summary description for Evidence Analysis
+    st.markdown("""
+    This section examines the types of paranormal evidence reported across haunted locations:
+    - **Evidence Types**: Compare frequencies of different evidence categories (visual, auditory, etc.)
+    - **Apparition Types**: Explore the distribution of reported apparition categories
+    - **Understanding Evidence**: Learn about common forms of paranormal evidence
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
     if 'evidence' in data and data['evidence']:
         col1, col2 = st.columns(2)
         
@@ -653,6 +797,17 @@ elif page == "Evidence Analysis":
 elif page == "Location Analysis":
     st.header("Location Analysis")
     
+    # Add summary description for Location Analysis
+    st.markdown("""
+    This analysis investigates geographical patterns of haunted places:
+    - **State Distribution**: Identify states with the highest concentration of reported hauntings
+    - **Regional Patterns**: Compare haunting frequencies across different U.S. regions
+    - **Apparition Geography**: Discover which types of apparitions are most common in different states
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
     if 'location' in data and data['location']:
         col1, col2 = st.columns(2)
         
@@ -710,6 +865,17 @@ elif page == "Location Analysis":
 elif page == "Correlation Analysis":
     st.header("Correlation Analysis")
     
+    # Add summary description for Correlation Analysis
+    st.markdown("""
+    This visualization reveals relationships between different variables in haunted places data:
+    - **Variable Correlations**: Examine how different factors correlate with each other
+    - **Heatmap Visualization**: Stronger colors indicate stronger relationships
+    - **Insight Discovery**: Identify patterns that may suggest causal relationships
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
     if 'correlation' in data and data['correlation']:
         if 'correlation_matrix' in data['correlation'] and data['correlation']['correlation_matrix']:
             st.subheader("Variable Correlations")
@@ -752,6 +918,21 @@ elif page == "Correlation Analysis":
 # New D3 Visualizations page
 elif page == "D3 Visualizations":
     # We don't need a duplicate header here since the page title will show
+    
+    # Add summary description for D3 Visualizations
+    st.markdown("""
+    This section features interactive D3.js visualizations for advanced data exploration:
+    - **Interactive Maps**: Explore geographic patterns with dynamic filtering
+    - **Time Series Analysis**: Investigate temporal trends with adjustable parameters
+    - **Advanced Correlations**: Discover relationships with interactive data points
+    - **Network Analysis**: Visualize connections between locations and evidence types
+    
+    *Note: These visualizations utilize D3's powerful capabilities for more advanced interactivity and customization*
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
     # Try to import and use the D3 visualization code
     try:
         from streamlit_d3_integration import add_d3_visualizations_tab
@@ -768,7 +949,35 @@ elif page == "D3 Visualizations":
         3. Create HTML files for each D3 visualization in the `visualizations` directory
         """)
 
-# MEMEX Tools page
+# MEMEX Tools enhanced page
 elif page == "MEMEX Tools":
-    st.header("MEMEX Tools")
-    add_simplified_memex_tab()
+    add_enhanced_memex_tab()
+
+# Search page
+elif page == "Search" and search_available:
+    st.header("Search Tools")
+    
+    # Add summary description for Search Tools
+    st.markdown("""
+    ### Advanced Search Capabilities
+
+    This module provides powerful search tools for exploring the haunted places dataset:
+    
+    - **Full-Text Search**: Search across all text fields in the haunted places data
+    - **Solr Integration**: Utilize Apache Solr's high-performance search capabilities
+    - **ElasticSearch**: Leverage complex query capabilities and relevance scoring
+    - **Faceted Navigation**: Filter results by state, evidence type, or time period
+    - **Geographic Search**: Find haunted places within specific regions or distances
+    
+    *Note: Full functionality requires Docker with Solr and/or ElasticSearch containers running*
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
+    add_search_tab()
+
+# If a page is selected but the module is not available, show an error
+elif page == "Search":
+    st.error(f"The Search module is not available. Please check the console for error messages.")
+    st.info("To enable Search functionality, make sure scripts/search_tab.py exists and required dependencies are installed.")
