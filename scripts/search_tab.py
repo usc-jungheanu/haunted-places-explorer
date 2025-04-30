@@ -25,11 +25,43 @@ def display_search_results(results, engine="solr"):
     
     # Check if results are simulated
     if 'simulated' in results and results['simulated']:
-        st.info(f"Simulated {engine} search (not connected to actual service)")
+        st.warning(f"""
+        **Simulated {engine.capitalize()} Search Mode**
+        
+        You are seeing simulated search results because your {engine.capitalize()} server is not running. 
+        For full functionality, please start Docker containers with:
+        ```
+        docker-compose up -d
+        ```
+        """)
+        
+        # Display any additional messages
+        if 'message' in results:
+            st.info(results['message'])
     
     # Check for error
     if 'error' in results:
         st.error(f"Error in {engine} search: {results['error']}")
+        
+        # Add helpful debugging information for connection errors
+        if "connection refused" in str(results['error']).lower():
+            st.info("""
+            **Connection Error Troubleshooting**
+            
+            This error typically occurs when the search server is not running. To fix this:
+            
+            1. Start Docker Desktop
+            2. Run the following command in your terminal:
+               ```
+               docker-compose up -d
+               ```
+            3. Verify the containers are running:
+               ```
+               docker ps
+               ```
+               
+            You should see containers for Solr and ElasticSearch running.
+            """)
         return
     
     # Format and display results based on engine
@@ -41,14 +73,37 @@ def display_search_results(results, engine="solr"):
             if docs:
                 # Convert to DataFrame for display
                 df = pd.DataFrame(docs)
+                
+                # Make the display more user-friendly
+                if len(df.columns) > 6:  # If there are too many columns
+                    # Keep the most important columns first
+                    important_cols = ['id', 'location', 'state', 'country', 'description', 'evidence', 'apparition_type']
+                    # Filter existing columns only
+                    display_cols = [col for col in important_cols if col in df.columns]
+                    # Add any other columns that weren't in our important list
+                    display_cols.extend([col for col in df.columns if col not in important_cols])
+                    df = df[display_cols]
+                
                 st.dataframe(df)
+                
+                # Add download button
+                csv = df.to_csv(index=False)
+                st.download_button(
+                    label="Download Results as CSV",
+                    data=csv,
+                    file_name=f"{engine}_search_results.csv",
+                    mime="text/csv",
+                )
             else:
                 st.info("No matching documents found")
     
     elif engine.lower() == "elasticsearch":
         if 'hits' in results and 'hits' in results['hits']:
             hits = results['hits']['hits']
-            st.subheader(f"Found {results['hits'].get('total', {}).get('value', len(hits))} results")
+            total_hits = results['hits'].get('total', {})
+            total_count = total_hits.get('value', len(hits)) if isinstance(total_hits, dict) else total_hits
+            
+            st.subheader(f"Found {total_count} results")
             
             if hits:
                 # Extract source from each hit
@@ -56,7 +111,27 @@ def display_search_results(results, engine="solr"):
                 
                 # Convert to DataFrame for display
                 df = pd.DataFrame(docs)
+                
+                # Make the display more user-friendly
+                if len(df.columns) > 6:  # If there are too many columns
+                    # Keep the most important columns first
+                    important_cols = ['id', 'location', 'state', 'country', 'description', 'evidence', 'apparition_type']
+                    # Filter existing columns only
+                    display_cols = [col for col in important_cols if col in df.columns]
+                    # Add any other columns that weren't in our important list
+                    display_cols.extend([col for col in df.columns if col not in important_cols])
+                    df = df[display_cols]
+                
                 st.dataframe(df)
+                
+                # Add download button
+                csv = df.to_csv(index=False)
+                st.download_button(
+                    label="Download Results as CSV",
+                    data=csv,
+                    file_name=f"{engine}_search_results.csv",
+                    mime="text/csv",
+                )
             else:
                 st.info("No matching documents found")
     
