@@ -430,17 +430,46 @@ class DataProcessor:
         try:
             logger.info("Preparing correlation data")
             
-            # Select numeric columns for correlation
-            numeric_columns = ['latitude', 'longitude']
-            if 'daylight_hours' in self.data.columns:
-                numeric_columns.append('daylight_hours')
-                
-            correlation_data = []
+            # Create dummy variables for categorical columns first
+            categorical_columns = ['state', 'evidence_type', 'apparition_type']
+            for col in categorical_columns:
+                if col in self.data.columns:
+                    dummies = pd.get_dummies(self.data[col], prefix=col)
+                    self.data = pd.concat([self.data, dummies], axis=1)
             
+            # Group variables by category
+            geographic_vars = ['latitude', 'longitude', 'daylight_hours', 'elevation']
+            temporal_vars = ['year', 'month', 'day']
+            
+            # Get state variables (from dummy variables)
+            state_vars = [col for col in self.data.columns if col.startswith('state_')]
+            
+            # Get apparition type variables (from dummy variables)
+            apparition_vars = [col for col in self.data.columns if col.startswith('apparition_type_')]
+            
+            # Get evidence type variables (from dummy variables)
+            evidence_vars = [col for col in self.data.columns if col.startswith('evidence_type_')]
+            
+            # Combine all variables in desired order
+            all_vars = (
+                geographic_vars +
+                temporal_vars +
+                state_vars +
+                apparition_vars +
+                evidence_vars
+            )
+            
+            # Filter to only include columns that exist in the data
+            numeric_columns = [col for col in all_vars if col in self.data.columns]
+            
+            correlation_data = []
             for i, col1 in enumerate(numeric_columns):
                 for j, col2 in enumerate(numeric_columns):
                     if i <= j:  # Include diagonal and upper triangle
-                        correlation = self.data[col1].corr(self.data[col2])
+                        # Convert columns to numeric if needed
+                        series1 = pd.to_numeric(self.data[col1], errors='coerce')
+                        series2 = pd.to_numeric(self.data[col2], errors='coerce')
+                        correlation = series1.corr(series2)
                         correlation_data.append({
                             'x': col1,
                             'y': col2,
