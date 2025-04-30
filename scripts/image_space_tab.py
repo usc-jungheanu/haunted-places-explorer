@@ -61,7 +61,15 @@ def display_image_features(features):
         
         # Format metadata as a table
         if isinstance(features['metadata'], dict):
-            metadata_df = pd.DataFrame(list(features['metadata'].items()), columns=['Property', 'Value'])
+            # Convert any list values to strings to avoid pyarrow conversion errors
+            formatted_metadata = {}
+            for k, v in features['metadata'].items():
+                if isinstance(v, list):
+                    formatted_metadata[k] = str(v)
+                else:
+                    formatted_metadata[k] = v
+            
+            metadata_df = pd.DataFrame(list(formatted_metadata.items()), columns=['Property', 'Value'])
             st.dataframe(metadata_df)
         else:
             st.json(features['metadata'])
@@ -220,7 +228,7 @@ def add_image_space_tab(customize_batch=False):
             
             return
             
-        st.info(f"📊 **Detected {total_images} images** in the images folder that can be processed.")
+        st.info(f"📊 **Detected {total_images} images** in the images folder that can be processed. **Note:** For storage limitations within GitHub, only showing a random sample of 500 images from the full dataset of 10,000+ haunted place images.")
         
         # Check if we have batch processing customization enabled
         if customize_batch:
