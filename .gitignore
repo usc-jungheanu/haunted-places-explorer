@@ -92,4 +92,10 @@ env/
 
 # OS files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Ignore PNG files in the root directory but allow them in the images folder
+/*.png
+# But keep the images folder
+!images/
+!images/*.png 
