@@ -232,4 +232,4 @@ def main():
     logger.info("Location analysis complete")
 
 if __name__ == "__main__":
-    main() 
+    main()
