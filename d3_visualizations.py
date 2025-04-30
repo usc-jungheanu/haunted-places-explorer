@@ -401,8 +401,8 @@ class D3VisualizationGenerator:
         
         // Create correlation visualization
         const width = 800;
-        const height = 400;
-        const margin = {top: 20, right: 20, bottom: 30, left: 50};
+        const height = 800;
+        const margin = {top: 50, right: 50, bottom: 100, left: 100};
         
         const svg = d3.select("#correlation-chart")
             .append("svg")
@@ -412,17 +412,35 @@ class D3VisualizationGenerator:
         const g = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
             
-        // Get unique variables
+        // Get unique variables and group them
         const variables = [...new Set(correlationData.correlation_matrix.map(d => d.x))];
+        
+        // Group variables by type
+        const groupedVars = {
+            geographic: variables.filter(v => ['latitude', 'longitude', 'daylight_hours', 'elevation'].includes(v)),
+            temporal: variables.filter(v => ['year', 'month', 'day'].includes(v)),
+            state: variables.filter(v => v.startsWith('state_')),
+            apparition: variables.filter(v => v.startsWith('apparition_type_')),
+            evidence: variables.filter(v => v.startsWith('evidence_type_'))
+        };
+        
+        // Combine all variables in order
+        const sortedVars = [
+            ...groupedVars.geographic,
+            ...groupedVars.temporal,
+            ...groupedVars.state,
+            ...groupedVars.apparition,
+            ...groupedVars.evidence
+        ];
         
         // Create scales
         const x = d3.scaleBand()
-            .domain(variables)
+            .domain(sortedVars)
             .range([0, width - margin.left - margin.right])
             .padding(0.05);
             
         const y = d3.scaleBand()
-            .domain(variables)
+            .domain(sortedVars)
             .range([0, height - margin.top - margin.bottom])
             .padding(0.05);
             
@@ -430,6 +448,49 @@ class D3VisualizationGenerator:
             .domain([-1, 1])
             .interpolator(d3.interpolateRdBu);
             
+        // Add group dividers
+        const addGroupDivider = (startVar, endVar, label) => {
+            const startY = y(startVar);
+            const endY = y(endVar) + y.bandwidth();
+            
+            // Add vertical divider
+            g.append("line")
+                .attr("x1", -5)
+                .attr("x2", -5)
+                .attr("y1", startY)
+                .attr("y2", endY)
+                .attr("stroke", "#666")
+                .attr("stroke-width", 2);
+                
+            // Add group label
+            g.append("text")
+                .attr("x", -10)
+                .attr("y", (startY + endY) / 2)
+                .attr("text-anchor", "end")
+                .attr("alignment-baseline", "middle")
+                .attr("transform", `rotate(-90, -10, ${(startY + endY) / 2})`)
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .text(label);
+        };
+        
+        // Add dividers for each group
+        if (groupedVars.geographic.length > 0) {
+            addGroupDivider(groupedVars.geographic[0], groupedVars.geographic[groupedVars.geographic.length - 1], "Geographic");
+        }
+        if (groupedVars.temporal.length > 0) {
+            addGroupDivider(groupedVars.temporal[0], groupedVars.temporal[groupedVars.temporal.length - 1], "Temporal");
+        }
+        if (groupedVars.state.length > 0) {
+            addGroupDivider(groupedVars.state[0], groupedVars.state[groupedVars.state.length - 1], "States");
+        }
+        if (groupedVars.apparition.length > 0) {
+            addGroupDivider(groupedVars.apparition[0], groupedVars.apparition[groupedVars.apparition.length - 1], "Apparitions");
+        }
+        if (groupedVars.evidence.length > 0) {
+            addGroupDivider(groupedVars.evidence[0], groupedVars.evidence[groupedVars.evidence.length - 1], "Evidence");
+        }
+        
         // Add cells
         g.selectAll("rect")
             .data(correlationData.correlation_matrix)
@@ -440,18 +501,115 @@ class D3VisualizationGenerator:
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
             .attr("fill", d => color(d.value))
-            .attr("stroke", "#fff");
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 0.5)
+            .on("mouseover", function(event, d) {
+                d3.select(this)
+                    .attr("stroke", "#000")
+                    .attr("stroke-width", 2);
+                    
+                // Show tooltip
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`<strong>${d.x} ↔ ${d.y}</strong><br/>Correlation: ${d.value.toFixed(3)}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                d3.select(this)
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 0.5);
+                    
+                // Hide tooltip
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
             
-        // Add text
-        g.selectAll("text")
+        // Add text for strong correlations
+        g.selectAll("text.correlation")
             .data(correlationData.correlation_matrix)
             .enter()
             .append("text")
+            .attr("class", "correlation")
             .attr("x", d => x(d.x) + x.bandwidth() / 2)
             .attr("y", d => y(d.y) + y.bandwidth() / 2)
             .attr("dy", ".35em")
             .attr("text-anchor", "middle")
-            .text(d => d.value.toFixed(2));
+            .style("font-size", "8px")
+            .text(d => Math.abs(d.value) > 0.3 ? d.value.toFixed(2) : "");
+            
+        // Add axes
+        g.append("g")
+            .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end")
+            .style("font-size", "10px");
+            
+        g.append("g")
+            .call(d3.axisLeft(y))
+            .selectAll("text")
+            .style("font-size", "10px");
+            
+        // Add title
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.top / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text("Correlation Matrix of Variables (Grouped by Type)");
+            
+        // Add color scale legend
+        const legendWidth = 200;
+        const legendHeight = 20;
+        const legendX = width - margin.right - legendWidth;
+        const legendY = height - margin.bottom + 40;
+        
+        const legendScale = d3.scaleLinear()
+            .domain([-1, 1])
+            .range([0, legendWidth]);
+            
+        const legendAxis = d3.axisBottom(legendScale)
+            .ticks(5);
+            
+        const legend = svg.append("g")
+            .attr("transform", `translate(${legendX},${legendY})`);
+            
+        const defs = svg.append("defs");
+        const gradient = defs.append("linearGradient")
+            .attr("id", "correlation-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        gradient.selectAll("stop")
+            .data(color.ticks(10).map((t, i, n) => ({offset: `${100*i/n.length}%`, color: color(t)})))
+            .enter().append("stop")
+            .attr("offset", d => d.offset)
+            .attr("stop-color", d => d.color);
+            
+        legend.append("rect")
+            .attr("width", legendWidth)
+            .attr("height", legendHeight)
+            .style("fill", "url(#correlation-gradient)");
+            
+        legend.append("g")
+            .call(legendAxis);
+            
+        // Add tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0)
+            .style("position", "absolute")
+            .style("background-color", "white")
+            .style("border", "1px solid #ddd")
+            .style("padding", "10px")
+            .style("border-radius", "5px")
+            .style("pointer-events", "none");
         """
         
         with open(self.output_dir / "visualizations.js", "a", encoding='utf-8') as f:
