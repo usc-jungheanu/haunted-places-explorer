@@ -196,6 +196,30 @@ def add_image_space_tab(customize_batch=False):
         
         # Get total count of images for informational purposes
         total_images = len(processor._get_image_files())
+        
+        if total_images == 0:
+            st.error("""
+            ### No images found in the 'images' directory!
+            
+            To use the Image Space features, you need to:
+            1. Make sure the 'images' directory exists in the project root
+            2. Add your image files to this directory (supported formats: jpg, jpeg, png, gif)
+            
+            **Note**: This folder is not included in the Git repository. When you clone this repository, you need to add your own images.
+            """)
+            
+            # Create images directory button
+            if st.button("Create 'images' directory", key="create_images_dir"):
+                import os
+                try:
+                    os.makedirs("images", exist_ok=True)
+                    st.success("'images' directory created successfully! Please add your images to this folder.")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error creating directory: {e}")
+            
+            return
+            
         st.info(f"📊 **Detected {total_images} images** in the images folder that can be processed.")
         
         # Check if we have batch processing customization enabled

@@ -68,4 +68,28 @@ venv.bak/
 
 # OS specific files
 .DS_Store
+Thumbs.db
+
+# Images folder - excluded due to size
+images/
+
+# Temporary files
+temp_upload.jpg
+*.pyc
+
+# Output directories
+output/image_features/
+output/location_analysis/
+
+# Virtual environment
+venv/
+env/
+.env/
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
 Thumbs.db 

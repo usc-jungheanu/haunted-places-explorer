@@ -24,7 +24,12 @@ class ImageProcessor:
     def __init__(self, image_dir="images", output_dir="output"):
         self.image_dir = Path(image_dir)
         self.output_dir = Path(output_dir)
+        
+        # Create directories if they don't exist
         self.output_dir.mkdir(exist_ok=True)
+        self.image_dir.mkdir(exist_ok=True)
+        logger.info(f"Initialized with image directory: {self.image_dir}")
+        
         self.features_cache = {}
         
         # Create output directories
