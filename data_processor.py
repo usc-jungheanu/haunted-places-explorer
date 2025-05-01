@@ -42,7 +42,7 @@ class DataProcessor:
             self.data = pd.read_csv(self.tsv_path, sep='\t', encoding='utf-8', on_bad_lines='skip')
             
             # Check and create required columns if they don't exist
-            required_columns = ['latitude', 'longitude', 'location', 'state', 'country', 'description', 'date']
+            required_columns = ['latitude', 'longitude', 'location', 'state', 'country', 'description', 'date', 'visual_evidence', 'CO2_ppb_Description']
             
             for col in required_columns:
                 if col not in self.data.columns:
@@ -482,6 +482,95 @@ class DataProcessor:
             logger.error(f"Error preparing correlation data: {e}")
             return {'correlation_matrix': []}
     
+    def prepare_air_pollution_analysis(self) -> Dict[str, Any]:
+        """Prepare air pollution analysis data"""
+        try:
+            logger.info("Preparing air pollution analysis data")
+            
+            # Print initial data info
+            print(f"Initial data shape: {self.data.shape}")
+            print("\nColumns in data:", self.data.columns.tolist())
+            print("\nSample of visual_evidence values:", self.data['visual_evidence'].value_counts())
+            
+            # Filter rows
+            filtered_data = self.data[
+                (self.data['CO_ppb_Description'].notna()) & 
+                (self.data['CO_ppb_Description'] != "") &
+                (self.data['apparition_type'].notna()) &
+                (self.data['apparition_type'] != "") &
+                (self.data['apparition_type'] != "Unknown")
+            ].copy()
+            
+            # Print filtered data info
+            print(f"\nFiltered data shape: {filtered_data.shape}")
+            print("\nUnique CO_ppb_Description values:", filtered_data['CO_ppb_Description'].unique())
+            print("\nUnique visual_evidence values:", filtered_data['visual_evidence'].unique())
+            
+            # Initialize results structure
+            valid_categories = ['Good Air Quality', 'Moderate Air Pollution', 'Poor Air Quality']
+            results = {category: {
+                'total_count': 0,
+                'total_percentage': 0,
+                'breakdown': {
+                    'FALSE': {'count': 0, 'percentage': 0},
+                    'TRUE': {'count': 0, 'percentage': 0}
+                }
+            } for category in valid_categories}
+            
+            # Calculate total rows
+            total_rows = len(filtered_data)
+            print(f"\nTotal rows after filtering: {total_rows}")
+            
+            # Process each category
+            for category in valid_categories:
+                # Get data for this category
+                category_data = filtered_data[filtered_data['CO_ppb_Description'] == category]
+                category_count = len(category_data)
+                
+                print(f"\nProcessing {category}:")
+                print(f"Category count: {category_count}")
+                
+                if category_count == 0:
+                    continue
+                
+                # Calculate total percentage for this category
+                results[category]['total_count'] = category_count
+                results[category]['total_percentage'] = round((category_count / total_rows * 100), 2)
+                
+                # Count TRUE and FALSE values
+                true_count = len(category_data[category_data['visual_evidence'] == True])
+                false_count = len(category_data[category_data['visual_evidence'] == False])
+                
+                print(f"TRUE count: {true_count}")
+                print(f"FALSE count: {false_count}")
+                
+                # Calculate percentages
+                results[category]['breakdown']['TRUE'] = {
+                    'count': true_count,
+                    'percentage': round((true_count / category_count * 100), 2) if category_count > 0 else 0
+                }
+                results[category]['breakdown']['FALSE'] = {
+                    'count': false_count,
+                    'percentage': round((false_count / category_count * 100), 2) if category_count > 0 else 0
+                }
+            
+            return {
+                'categories': results,
+                'metadata': {
+                    'total_rows_analyzed': total_rows
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error preparing air pollution analysis: {e}")
+            print(f"Error: {str(e)}")
+            return {
+                'categories': {},
+                'metadata': {
+                    'error': str(e)
+                }
+            }
+    
     def ingest_to_elasticsearch(self) -> None:
         """Ingest data into Elasticsearch"""
         if not self.es_available:
@@ -556,6 +645,7 @@ class DataProcessor:
             evidence_data = self.prepare_evidence_analysis()
             location_data = self.prepare_location_analysis()
             correlation_data = self.prepare_correlation_data()
+            air_pollution_data = self.prepare_air_pollution_analysis()
             
             # Save all data
             data_files = {
@@ -563,7 +653,8 @@ class DataProcessor:
                 'time_analysis.json': time_data,
                 'evidence_analysis.json': evidence_data,
                 'location_analysis.json': location_data,
-                'correlation_data.json': correlation_data
+                'correlation_data.json': correlation_data,
+                'air_pollution.json': air_pollution_data
             }
             
             for filename, data in data_files.items():
