@@ -175,4 +175,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Data source: Haunted Places dataset
 - MEMEX tools integration
-- ETLlib for data processing 
+- ETLlib for data processing
+
+  ## Authors
+  
+  
