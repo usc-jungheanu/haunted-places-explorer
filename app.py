@@ -308,7 +308,8 @@ def load_data():
         os.path.join(OUTPUT_DIR, "time_analysis.json"),
         os.path.join(OUTPUT_DIR, "evidence_analysis.json"),
         os.path.join(OUTPUT_DIR, "location_analysis.json"),
-        os.path.join(OUTPUT_DIR, "correlation_data.json")
+        os.path.join(OUTPUT_DIR, "correlation_data.json"),
+        os.path.join(OUTPUT_DIR, "air_pollution.json")
     ]
     
     all_files_exist = all(os.path.exists(f) for f in required_files)
@@ -385,6 +386,17 @@ def load_correlation_data():
         logger.error(f"Error loading correlation data: {e}")
         return None
 
+# Load air pollution data
+@st.cache_data
+def load_air_pollution_data():
+    try:
+        with open(os.path.join(OUTPUT_DIR, "air_pollution.json"), "r") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading air pollution data: {e}")
+        return None
+
+
 # Process data and ensure files exist
 data_loaded = load_data()
 
@@ -394,7 +406,8 @@ data = {
     'time': load_time_analysis(),
     'location': load_location_analysis(),
     'evidence': load_evidence_analysis(),
-    'correlation': load_correlation_data()
+    'correlation': load_correlation_data(),
+    'air_pollution': load_air_pollution_data()
 }
 
 # Title and description (we'll put this in the main content area instead of sidebar)
@@ -414,6 +427,7 @@ with st.sidebar:
     # Create column layout for buttons
     menu_options = {
         "🏠 Home": "Home",
+        "☁️ Air Pollution Analysis": "Air Pollution Analysis",
         "🗺️ Map View": "Map Visualization",
         "⏱️ Time Analysis": "Time Analysis",
         "🔍 Evidence Analysis": "Evidence Analysis",
@@ -444,7 +458,7 @@ if page == "Home":
     st.header("Welcome to the Haunted Places Explorer")
     st.markdown("""
     This dashboard provides various ways to explore and analyze haunted places data:
-    
+    - **Homework Insights Visualization**: Visualize insights derived from prior homework assignments
     - **Map Visualization**: View haunted locations on an interactive map
     - **Time Analysis**: Explore temporal patterns in haunted sightings
     - **Evidence Analysis**: Analyze types of evidence and apparitions
@@ -456,6 +470,156 @@ if page == "Home":
     
     Use the sidebar to navigate between different visualizations.
     """)
+
+elif page == "Air Pollution Analysis":
+    st.header("Air Pollution Analysis")
+    
+    # Add summary description for HW1 Visualization
+    st.markdown("""
+    This section visualizes insights derived from the features appended to the dataset in Homework 1:
+    - **Air Quality Analysis**: Explore the relationship between air quality and haunted places
+    - **Visual Evidence**: Analyze the distribution of visual evidence across air quality categories
+    - **Pattern Discovery**: Identify patterns between air quality and paranormal activity
+    """)
+    
+    # Line separator
+    st.markdown("---")
+    
+    if 'air_pollution' in data and data['air_pollution']:
+        # Create two columns for the visualizations
+        col1, col2 = st.columns([1, 2])
+        
+        with col1:
+            st.subheader("Haunted Reports by Air Quality (CO PPB)")
+            # Prepare data for overall distribution donut chart
+            overall_labels = []
+            overall_values = []
+            overall_colors = []
+            
+            for category, category_data in data['air_pollution']['categories'].items():
+                 overall_labels.append(category)
+                 overall_values.append(category_data['total_percentage'])
+            #     overall_colors.append(color_map[category])
+            
+            # Create overall distribution donut chart
+            fig1 = go.Figure(data=[go.Pie(
+                labels=overall_labels,
+                values=overall_values,
+                hole=.4,
+                # marker_colors=overall_colors,
+                textinfo='label+percent',
+                textposition='outside'
+            )])
+            
+            # Update layout for dark theme
+            fig1.update_layout(
+                title={
+                    'text': "Overall Air Quality Distribution",
+                    'y': 0.95,
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top',
+                    #'font': {'size': 16, 'color': '#FFFFFF'}
+                },
+                height=400,
+            )
+            
+            st.plotly_chart(fig1, use_container_width=True)
+        
+        with col2:
+            st.subheader("Visual Evidence Breakdown by Air Quality (CO PPB)")
+            # Prepare data for breakdown visualization
+            evidence_mapping = {
+                'TRUE': 'Visual Evidence',
+                'FALSE': 'No Visual Evidence'
+            }
+            
+            # Create figure for evidence breakdown
+            fig2 = go.Figure()
+            
+            # Calculate y-positions for each category's pie chart
+            x_positions = [0.25, 0.5, 0.75]  # Left, middle, right positions
+            
+            for i, (category, category_data) in enumerate(data['air_pollution']['categories'].items()):
+                # Get evidence breakdown
+                evidence_labels = []
+                evidence_values = []
+                evidence_colors = []
+                
+                for evidence_type, evidence_data in category_data['breakdown'].items():
+                    friendly_name = evidence_mapping[evidence_type]
+                    evidence_labels.append(friendly_name)
+                    evidence_values.append(evidence_data['percentage'])
+                    #evidence_colors.append(color_map[friendly_name])
+                
+                # Add pie chart for this category
+                fig2.add_trace(go.Pie(
+                    labels=evidence_labels,
+                    values=evidence_values,
+                    name=category,
+                    #marker_colors=evidence_colors,
+                    domain=dict(x=[x_positions[i]-0.15, x_positions[i]+0.15], y=[0.2, 0.8]),
+                    textinfo='percent',
+                    textposition='inside',
+                    showlegend=True,
+                    title=f"{category}<br>({category_data['total_percentage']:.1f}% of total)",
+                    titleposition="top right",
+                    #titlefont=dict(size=12, color='#FFFFFF')
+                ))
+            
+            # Update layout for dark theme
+            fig2.update_layout(
+                title={
+                    'text': "Visual Evidence Breakdown by Air Quality",
+                    'y': 0.95,
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top',
+                    #'font': {'size': 16, 'color': '#FFFFFF'}
+                },
+                showlegend=True,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.1,
+                    xanchor="center",
+                    x=0.5,
+                    #font=dict(color='#FFFFFF')
+                ),
+                #plot_bgcolor='rgba(0,0,0,0)',
+                #paper_bgcolor='rgba(0,0,0,0)',
+                #font=dict(color='#FFFFFF'),
+                height=400,
+                margin=dict(t=20, b=60, l=10, r=10)  # Adjust margins to account for legend
+            )
+            
+            st.plotly_chart(fig2, use_container_width=True)
+        
+        # Add explanation with custom styling
+        st.markdown("""
+        <div>
+        <h3>Insights:</h3>
+        <ul>
+            <li>Carbon monoxide can typically cause hallucinations that are oftentimes attributed as the cause of “hauntings”. Areas with poor CO air quality had higher percentages of reports with no visual evidence. </li>
+            <li>90.91% of reports in areas with good air quality as defined by concentration in parts-per-billion (ppb) of carbon monoxide (CO) had visual evidence.</li>
+            <li>The number of reports with no visual evidence increased as the concentration of CO increased(and air quality as a measure of this concentration decreased). With each level of decreased air quality, the portion of reports with no visual evidence increased significantly. </li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Add data note with custom styling
+        st.markdown(
+            f"""
+            <div style='background-color: rgba(49, 51, 63, 0.7); padding: 20px; border-radius: 5px; margin: 10px 0;'>
+                <p style='color: #FFFFFF; margin: 0;'>
+                    ℹ️ Analysis based on {data['air_pollution']['metadata']['total_rows_analyzed']} haunted locations with recorded air quality data.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.error("No air pollution data available")
 
 elif page == "Map Visualization":
     st.header("Haunted Places Map")
@@ -493,7 +657,16 @@ elif page == "Map Visualization":
         
         # Create a sampling notice if we're limiting markers
         if filtered_locations > max_markers:
-            st.info(f"⚡ For performance reasons, showing a random sample of {max_markers} locations out of {filtered_locations} valid locations.")
+            st.markdown(
+                f"""
+                <div style='background-color: rgba(49, 51, 63, 0.7); padding: 20px; border-radius: 5px; margin: 10px 0;'>
+                    <p style='color: #FFFFFF; margin: 0;'>
+                        For performance reasons, showing a random sample of {max_markers} locations out of {filtered_locations} valid locations.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
             # Random sample for better distribution
             import random
             valid_locations = [loc for loc in locations if loc['latitude'] != 0 and loc['longitude'] != 0]
@@ -605,30 +778,6 @@ elif page == "Map Visualization":
             )
     else:
         st.warning("No map data available")
-    
-    if 'map' in data and data['map'] and 'map_data' in data['map']:
-        # Create a map centered on the US
-        m = folium.Map(location=[39.8283, -98.5795], zoom_start=4)
-        
-        # Add markers for each haunted location
-        for location in data['map']['map_data']:
-            if location['latitude'] != 0 and location['longitude'] != 0:
-                popup_text = f"""
-                <b>{location['location']}</b><br>
-                State: {location['state']}<br>
-                Country: {location['country']}<br>
-                Description: {location['description'][:100]}...
-                """
-                folium.Marker(
-                    [location['latitude'], location['longitude']],
-                    popup=popup_text,
-                    tooltip=location['location']
-                ).add_to(m)
-        
-        # Display the map
-        folium_static(m)
-    else:
-        st.warning("No map data available")
 
 elif page == "Time Analysis":
     st.header("Temporal Analysis")
@@ -722,6 +871,17 @@ elif page == "Time Analysis":
     else:
         st.warning("No time analysis data available")
 
+    #insights section
+    st.markdown("""
+    <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
+    <h3 style='color: #FFFFFF;'>Insights:</h3>
+    <ul style='color: #FFFFFF;'>
+        <li>We see spikes in haunted places reports in 1990 and 2008. Possible explanations for these spikes is that the increased volume of reports could have been due in part to the rise of the internet and social media as well as increasing popularity of paranormal content in entertainment.</li>
+        <li>2008 saw widespread adoption of digital and social media platforms such as Reddit and Youtube which may have helped sensationalize paranormal content and helped facilitate the spread of paranormal reports.</li>
+        <li>In 1990, there was a resurgence in paranormal and ghost related content in popular culture, with the release of "Ghost" and with shows like "Unsolved Mysteries" and "The X-Files" which may have helped popularize the idea of haunted places.</li>
+    </ul>
+    </div>
+    """, unsafe_allow_html=True)
 elif page == "Evidence Analysis":
     st.header("Evidence Analysis")
     
@@ -914,6 +1074,18 @@ elif page == "Correlation Analysis":
             st.info("No correlation data available")
     else:
         st.warning("No correlation data available")
+
+    #insights section
+    st.markdown("""
+    <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
+    <h3 style='color: #FFFFFF;'>Insights:</h3>
+    <ul style='color: #FFFFFF;'>
+        <li>The strongest negative correlation (-0.340) is between apparition_type_Ghost and apparition_type_Ghost Light, suggesting these types tend to be mutually exclusive.</li>
+        <li>Looking at the larger correlation matrix, there are some weak correlations between latitude and certain states, which is expected due to their geographic positions. The state correlations show mostly negative values with each other (visible in the blue squares), which is logical since a haunting can't occur in multiple states simultaneously.</li>
+        <li>Full-Bodied Apparitions show very weak negative correlations with all other types, suggesting they occur relatively independently. Shadow Figures and Partial Apparitions have the weakest correlations with other types, indicating they might occur randomly across locations.</li>
+        <li>The generally weak correlations between different apparition types suggest that haunted places don't typically experience multiple types of apparitions simultaneously. The strongest relationships are between traditional ghost sightings and other manifestation types, possibly indicating that these categories might overlap in witness descriptions. The geographic correlations (visible in the larger matrix) suggest some regional patterns in haunting reports, though these correlations are relatively weak. </li>
+    </div>
+    """, unsafe_allow_html=True)
 
 # New D3 Visualizations page
 elif page == "D3 Visualizations":

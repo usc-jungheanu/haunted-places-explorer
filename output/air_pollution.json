@@ -1,0 +1,49 @@
+{
+    "categories": {
+        "Good Air Quality": {
+            "total_count": 10,
+            "total_percentage": 2.92,
+            "breakdown": {
+                "FALSE": {
+                    "count": 1,
+                    "percentage": 10.0
+                },
+                "TRUE": {
+                    "count": 9,
+                    "percentage": 90.0
+                }
+            }
+        },
+        "Moderate Air Pollution": {
+            "total_count": 311,
+            "total_percentage": 90.67,
+            "breakdown": {
+                "FALSE": {
+                    "count": 91,
+                    "percentage": 29.26
+                },
+                "TRUE": {
+                    "count": 220,
+                    "percentage": 70.74
+                }
+            }
+        },
+        "Poor Air Quality": {
+            "total_count": 22,
+            "total_percentage": 6.41,
+            "breakdown": {
+                "FALSE": {
+                    "count": 7,
+                    "percentage": 31.82
+                },
+                "TRUE": {
+                    "count": 15,
+                    "percentage": 68.18
+                }
+            }
+        }
+    },
+    "metadata": {
+        "total_rows_analyzed": 343
+    }
+}

@@ -1579,42 +1579,42 @@
     ],
     "time_of_day_counts": [
         {
-            "time_of_day": "Afternoon",
-            "count": 4070
+            "time_of_day": "Evening",
+            "count": 3253
         },
         {
             "time_of_day": "Morning",
-            "count": 2933
+            "count": 2392
         },
         {
             "time_of_day": "Unknown",
-            "count": 2478
+            "count": 2351
         },
         {
-            "time_of_day": "Evening",
-            "count": 250
+            "time_of_day": "Afternoon",
+            "count": 1735
         }
     ],
     "daylight_by_state": [
         {
             "state": "alabama",
-            "average_daylight_hours": 13.171301247771837
+            "average_daylight_hours": 13.171301247326204
         },
         {
             "state": "alaska",
-            "average_daylight_hours": 13.139506172839505
+            "average_daylight_hours": 13.139506172962964
         },
         {
             "state": "arizona",
-            "average_daylight_hours": 12.941435185185185
+            "average_daylight_hours": 12.94143518513889
         },
         {
             "state": "arkansas",
-            "average_daylight_hours": 13.193197278911565
+            "average_daylight_hours": 13.193197278877552
         },
         {
             "state": "california",
-            "average_daylight_hours": 13.058180272108844
+            "average_daylight_hours": 13.058180271765307
         },
         {
             "state": "colorado",
@@ -1630,47 +1630,47 @@
         },
         {
             "state": "florida",
-            "average_daylight_hours": 13.0726148409894
+            "average_daylight_hours": 13.072614841625443
         },
         {
             "state": "georgia",
-            "average_daylight_hours": 12.751898734177214
+            "average_daylight_hours": 12.751898734050634
         },
         {
             "state": "hawaii",
-            "average_daylight_hours": 12.718125
+            "average_daylight_hours": 12.71812500075
         },
         {
             "state": "idaho",
-            "average_daylight_hours": 12.760655737704917
+            "average_daylight_hours": 12.760655736393444
         },
         {
             "state": "illinois",
-            "average_daylight_hours": 13.057218992248062
+            "average_daylight_hours": 13.057218992238372
         },
         {
             "state": "indiana",
-            "average_daylight_hours": 13.045572916666666
+            "average_daylight_hours": 13.045572916796875
         },
         {
             "state": "iowa",
-            "average_daylight_hours": 13.194799054373522
+            "average_daylight_hours": 13.194799053404255
         },
         {
             "state": "kansas",
-            "average_daylight_hours": 13.312454212454213
+            "average_daylight_hours": 13.31245421263736
         },
         {
             "state": "kentucky",
-            "average_daylight_hours": 13.276604938271605
+            "average_daylight_hours": 13.27660493825926
         },
         {
             "state": "louisiana",
-            "average_daylight_hours": 13.149607843137256
+            "average_daylight_hours": 13.149607842235293
         },
         {
             "state": "maine",
-            "average_daylight_hours": 13.167361111111111
+            "average_daylight_hours": 13.167361111041666
         },
         {
             "state": "maryland",
@@ -1678,11 +1678,11 @@
         },
         {
             "state": "massachusetts",
-            "average_daylight_hours": 13.07332134292566
+            "average_daylight_hours": 13.073321342697842
         },
         {
             "state": "michigan",
-            "average_daylight_hours": 13.312971014492753
+            "average_daylight_hours": 13.312971014043478
         },
         {
             "state": "minnesota",
@@ -1698,55 +1698,55 @@
         },
         {
             "state": "montana",
-            "average_daylight_hours": 13.052450980392155
+            "average_daylight_hours": 13.052450980294118
         },
         {
             "state": "nebraska",
-            "average_daylight_hours": 12.758514492753623
+            "average_daylight_hours": 12.758514492934783
         },
         {
             "state": "nevada",
-            "average_daylight_hours": 12.67932098765432
+            "average_daylight_hours": 12.679320987037036
         },
         {
             "state": "new hampshire",
-            "average_daylight_hours": 13.100555555555555
+            "average_daylight_hours": 13.100555555666666
         },
         {
             "state": "new jersey",
-            "average_daylight_hours": 12.974129353233831
+            "average_daylight_hours": 12.974129353059702
         },
         {
             "state": "new mexico",
-            "average_daylight_hours": 13.199754901960784
+            "average_daylight_hours": 13.199754901911763
         },
         {
             "state": "new york",
-            "average_daylight_hours": 13.326506024096386
+            "average_daylight_hours": 13.326506024216869
         },
         {
             "state": "north carolina",
-            "average_daylight_hours": 13.224190476190477
+            "average_daylight_hours": 13.224190477371428
         },
         {
             "state": "north dakota",
-            "average_daylight_hours": 13.012152777777779
+            "average_daylight_hours": 13.012152777916667
         },
         {
             "state": "ohio",
-            "average_daylight_hours": 13.147376916868442
+            "average_daylight_hours": 13.147376916803875
         },
         {
             "state": "oklahoma",
-            "average_daylight_hours": 12.826646706586827
+            "average_daylight_hours": 12.826646707305388
         },
         {
             "state": "oregon",
-            "average_daylight_hours": 12.976456876456878
+            "average_daylight_hours": 12.976456875944056
         },
         {
             "state": "pennsylvania",
-            "average_daylight_hours": 13.131221064814815
+            "average_daylight_hours": 13.131221064652777
         },
         {
             "state": "rhode island",
@@ -1762,43 +1762,43 @@
         },
         {
             "state": "tennessee",
-            "average_daylight_hours": 13.293931623931623
+            "average_daylight_hours": 13.293931624102564
         },
         {
             "state": "texas",
-            "average_daylight_hours": 12.997248931623933
+            "average_daylight_hours": 12.997248931522437
         },
         {
             "state": "utah",
-            "average_daylight_hours": 12.697899159663866
+            "average_daylight_hours": 12.697899159411765
         },
         {
             "state": "vermont",
-            "average_daylight_hours": 12.712424242424241
+            "average_daylight_hours": 12.712424241454544
         },
         {
             "state": "virginia",
-            "average_daylight_hours": 12.733044315992293
+            "average_daylight_hours": 12.733044315433526
         },
         {
             "state": "washington",
-            "average_daylight_hours": 13.071061359867329
+            "average_daylight_hours": 13.071061360149253
         },
         {
             "state": "washington dc",
-            "average_daylight_hours": 13.013636363636362
+            "average_daylight_hours": 13.013636360909091
         },
         {
             "state": "west virginia",
-            "average_daylight_hours": 13.17078853046595
+            "average_daylight_hours": 13.17078853032258
         },
         {
             "state": "wisconsin",
-            "average_daylight_hours": 13.324583333333333
+            "average_daylight_hours": 13.324583333541666
         },
         {
             "state": "wyoming",
-            "average_daylight_hours": 13.034825870646767
+            "average_daylight_hours": 13.034825870597015
         }
     ]
 }
