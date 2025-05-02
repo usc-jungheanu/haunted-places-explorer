@@ -2,6 +2,8 @@
 
 A comprehensive data visualization and analysis tool for haunted places data, built for DSCI 550 HW3.
 
+> **⚠️ IMPORTANT:** Please use **Light mode** when viewing the application. This ensures all text in visualizations is properly visible. Dark mode may cause some text elements to be difficult to read in certain charts and visualizations.
+
 ## Features
 
 - **Interactive Map Visualization**: Explore haunted locations across the US with marker clustering
@@ -9,7 +11,7 @@ A comprehensive data visualization and analysis tool for haunted places data, bu
 - **Evidence Analysis**: Analyze types of paranormal evidence and apparition types
 - **Location Analysis**: Explore geographical patterns of hauntings
 - **Correlation Analysis**: Discover relationships between different variables
-- **D3 Visualizations**: Interactive visualizations built with D3.js
+- **D3 Visualizations**: Interactive visualizations built directly with D3.js (no iframes)
 - **MEMEX Tools**: Image analysis and location tools integration
 - **Search Capabilities**: Solr and ElasticSearch integration
 - **GeoParser**: Location extraction and analysis
@@ -54,19 +56,14 @@ If you prefer to install manually:
    docker-compose up -d
    ```
 
-3. Process the data:
+3. Ensure the output directory exists and has the necessary data files:
    ```bash
-   python scripts/convert_tsv.py
-   python scripts/image_processing.py
-   python scripts/geoparser.py
-   python scripts/search_integration.py
+   mkdir -p output
    ```
 
 4. Run the application:
    ```bash
    streamlit run app.py
-   or
-   python -m streamlit run app.py
    ```
 
 ## Data
@@ -77,6 +74,15 @@ The application uses the `haunted_places_v2.tsv` dataset, which should be placed
 - Description of paranormal activity
 - Types of evidence and apparitions
 - Historical information
+
+### Required Data Files
+
+The following JSON files should be present in the `output` directory for the visualizations to work properly:
+- `map_data.json`: Contains geographical data for haunted locations
+- `time_analysis.json`: Contains temporal data for hauntings
+- `evidence_analysis.json`: Contains data about types of evidence
+- `location_analysis.json`: Contains geographical distributions
+- `correlation_data.json`: Contains relationship data between variables
 
 ### Image Data
 
@@ -104,7 +110,7 @@ For the Image Space features, you need to place your image files in the `images`
    - **Evidence Analysis**: Analyze types of paranormal evidence
    - **Location Analysis**: Explore geographical distributions
    - **Correlation Analysis**: Discover relationships between variables
-   - **D3 Visualizations**: Interact with custom D3.js visualizations
+   - **D3 Visualizations**: Interact with custom D3.js visualizations directly embedded in Streamlit
    - **MEMEX Tools**: Use advanced image and location analysis tools
    - **Image Space**: Analyze images with similarity search
    - **GeoParser**: Extract and analyze location information
@@ -112,15 +118,18 @@ For the Image Space features, you need to place your image files in the `images`
 
 ## Components
 
-### ETLlib Integration
+### D3.js Visualizations
 
-- Conversion of TSV data to JSON for D3 visualizations
-- Data processing and transformation
+- Direct embedding of D3.js visualizations within Streamlit components
+- No iframes are used, ensuring better security and compatibility
+- Interactive map, time series charts, bar charts, pie charts, and geographic heatmaps
+- Custom styling and tooltips for enhanced user experience
 
 ### Search Integration
 
 - Solr and ElasticSearch for advanced search capabilities
 - Data indexing and querying
+- Fallback to simplified search when Docker components are not available
 
 ### Image Space
 
@@ -136,6 +145,14 @@ For the Image Space features, you need to place your image files in the `images`
 - Coordinate mapping
 
 ## Troubleshooting
+
+### D3 Visualization Issues
+
+If you encounter issues with the D3 visualizations:
+
+1. Make sure all required JSON files exist in the `output` directory
+2. Check that the JSON files have the expected structure
+3. The application logs will show detailed errors if there are issues loading the data
 
 ### Image Processing Issues
 
@@ -155,6 +172,18 @@ If search features show connection errors:
 3. Verify container status with `docker ps`
 4. The application will use fallback search mode when Docker is not available
 
+## Project Structure
+
+The project has been reorganized for better clarity and performance:
+
+- **app.py**: Main Streamlit application
+- **streamlit_d3_direct.py**: Direct D3.js visualizations integrated with Streamlit
+- **data_processor.py**: Processes the haunted places data
+- **data_storage.py**: Handles data storage and retrieval
+- **simplified_memex.py**: Simplified MEMEX tools that work without Docker
+- **elasticsearch_indexer.py**: Handles Elasticsearch indexing and queries
+- **setup.py**: Script to set up the application
+
 ## Dependencies
 
 The main dependencies are:
@@ -166,8 +195,19 @@ The main dependencies are:
 - pysolr
 - Pillow
 - Tika
+- Mordecai (for geoparsing capability)
 
 For a complete list, see `requirements.txt`.
+
+### Optional Dependencies
+
+**Mordecai**: If Mordecai is not installed, the application will fall back to using simulated geoparsing. To install Mordecai:
+
+```bash
+pip install mordecai==2.1.0
+```
+
+Note that Mordecai installation may require additional system dependencies like SpaCy models. If you encounter issues installing Mordecai, the application will still work with reduced geoparsing capabilities.
 
 ## License
 
@@ -177,8 +217,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Data source: Haunted Places dataset
 - MEMEX tools integration
-- ETLlib for data processing
+- D3.js for advanced visualizations
+- Streamlit for the interactive web application
 
-  ## Authors
-  
-  
+## Authors
+
+Tyler Wong
+
+Ryan Ho
+
+Jesse Fulcher
+
+Jason Ungheanu
+
+James Temme
+
