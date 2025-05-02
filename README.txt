@@ -2,7 +2,7 @@
 
 A comprehensive data visualization and analysis tool for haunted places data, built for DSCI 550 HW3.
 
-> **⚠️ IMPORTANT:** Please use **Light mode** when viewing the application. This ensures all text in visualizations is properly visible. Dark mode may cause some text elements to be difficult to read in certain charts and visualizations.
+> **⚠️ IMPORTANT:** Please use **Light mode** when viewing the application. This ensures all text in visuals are visible. Dark mode may cause some text elements to be difficult to read in certain charts and visualizations.
 
 ## Features
 
