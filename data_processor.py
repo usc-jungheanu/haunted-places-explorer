@@ -42,7 +42,7 @@ class DataProcessor:
             self.data = pd.read_csv(self.tsv_path, sep='\t', encoding='utf-8', on_bad_lines='skip')
             
             # Check and create required columns if they don't exist
-            required_columns = ['latitude', 'longitude', 'location', 'state', 'country', 'description', 'date', 'visual_evidence', 'CO2_ppb_Description']
+            required_columns = ['latitude', 'longitude', 'location', 'state', 'country', 'description', 'date']
             
             for col in required_columns:
                 if col not in self.data.columns:
@@ -251,10 +251,11 @@ class DataProcessor:
                 daylight_by_state = self.data.groupby('state')[column_name].mean().reset_index()
                 daylight_by_state.columns = ['state', 'average_daylight_hours']
                 
-                # Filter out states with default values only
-                daylight_by_state = daylight_by_state[daylight_by_state['average_daylight_hours'] != 12.0]
+                # We're keeping all states now, even those with default values
+                # This ensures all states appear in the visualization
                 
-                if len(daylight_by_state) == 0:
+                # Check if we need to generate variation (all or most values are the same)
+                if daylight_by_state['average_daylight_hours'].nunique() <= 3:
                     # Generate some variation if all values are the same
                     logger.info("All states have the same daylight hours, generating variation")
                     all_states = self.data['state'].unique()
@@ -265,13 +266,40 @@ class DataProcessor:
                         state_rows = self.data[self.data['state'] == state]
                         state_lat[state] = state_rows['latitude'].mean()
                     
+                    # Specific fixes for states with missing latitude data
+                    problem_states = ['colorado', 'connecticut', 'delaware', 'minnesota', 
+                                     'mississippi', 'missouri', 'rhode island', 
+                                     'south carolina', 'south dakota']
+                    
+                    # Default latitudes for the problem states
+                    default_latitudes = {
+                        'colorado': 39.0, 
+                        'connecticut': 41.6, 
+                        'delaware': 39.0,
+                        'minnesota': 46.0,
+                        'mississippi': 32.7,
+                        'missouri': 38.6,
+                        'rhode island': 41.7,
+                        'south carolina': 33.8,
+                        'south dakota': 44.5
+                    }
+                    
                     state_daylight = []
                     for state, lat in state_lat.items():
-                        if pd.notna(lat):
-                            # Generate daylight hours based on latitude (simplified model)
-                            # Higher latitude = more variation between summer and winter
-                            avg_daylight = 12.0 + (lat - 40) * 0.1  # More northern states have more daylight in summer
-                            state_daylight.append({'state': state, 'average_daylight_hours': avg_daylight})
+                        # Apply special handling for problem states
+                        if state.lower() in problem_states:
+                            default_lat = default_latitudes[state.lower()]
+                            logger.info(f"Using default latitude for {state}: {default_lat}")
+                            avg_daylight = 12.0 + (default_lat - 40) * 0.1
+                            state_daylight.append({'state': state, 'average_daylight_hours': float(avg_daylight)})
+                        elif pd.notna(lat):
+                            # For other states with valid latitude
+                            avg_daylight = 12.0 + (lat - 40) * 0.1
+                            state_daylight.append({'state': state, 'average_daylight_hours': float(avg_daylight)})
+                        else:
+                            # For any other states with NaN latitude
+                            logger.warning(f"State {state} has no latitude data, using default value")
+                            state_daylight.append({'state': state, 'average_daylight_hours': 12.0})
                     
                     daylight_by_state = pd.DataFrame(state_daylight)
             else:
