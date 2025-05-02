@@ -915,7 +915,7 @@ elif page == "Time Analysis":
     st.markdown("""
     <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
     <h3 style='color: #000000;'>Insights:</h3>
-    <ul style='color: #FFFFFF;'>
+    <ul style='color: #000000;'>
         <li>We see spikes in haunted places reports in 1990 and 2008. Possible explanations for these spikes is that the increased volume of reports could have been due in part to the rise of the internet and social media as well as increasing popularity of paranormal content in entertainment.</li>
         <li>2008 saw widespread adoption of digital and social media platforms such as Reddit and Youtube which may have helped sensationalize paranormal content and helped facilitate the spread of paranormal reports.</li>
         <li>In 1990, there was a resurgence in paranormal and ghost related content in popular culture, with the release of "Ghost" and with shows like "Unsolved Mysteries" and "The X-Files" which may have helped popularize the idea of haunted places.</li>
@@ -1120,7 +1120,7 @@ elif page == "Correlation Analysis":
     st.markdown("""
     <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
     <h3 style='color: #000000;'>Insights:</h3>
-    <ul style='color: #FFFFFF;'>
+    <ul style='color: #000000;'>
         <li>The strongest negative correlation (-0.340) is between apparition_type_Ghost and apparition_type_Ghost Light, suggesting these types tend to be mutually exclusive.</li>
         <li>Looking at the larger correlation matrix, there are some weak correlations between latitude and certain states, which is expected due to their geographic positions. The state correlations show mostly negative values with each other (visible in the blue squares), which is logical since a haunting can't occur in multiple states simultaneously.</li>
         <li>Full-Bodied Apparitions show very weak negative correlations with all other types, suggesting they occur relatively independently. Shadow Figures and Partial Apparitions have the weakest correlations with other types, indicating they might occur randomly across locations.</li>
