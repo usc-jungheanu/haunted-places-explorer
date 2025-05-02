@@ -6,6 +6,7 @@ A comprehensive data visualization and analysis tool for haunted places data, bu
 
 ## Features
 
+- **Air Pollution Visualization**: Visualize key insights derived from air pollution feature set appended in homework 1
 - **Interactive Map Visualization**: Explore haunted locations across the US with marker clustering
 - **Temporal Analysis**: Examine historical patterns and time of day distributions
 - **Evidence Analysis**: Analyze types of paranormal evidence and apparition types
@@ -105,6 +106,7 @@ For the Image Space features, you need to place your image files in the `images`
 
 1. Navigate using the sidebar menu to explore different visualizations
 2. Each tab offers unique insights and interactive elements:
+   - **Air Pollution Analysis**: Analyze key insights derived from air pollution feature set
    - **Map View**: Explore haunted locations geographically
    - **Time Analysis**: Examine temporal patterns
    - **Evidence Analysis**: Analyze types of paranormal evidence
