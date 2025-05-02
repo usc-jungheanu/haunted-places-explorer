@@ -1,0 +1,309 @@
+{
+    "state_counts": [
+        {
+            "state": "california",
+            "count": 1003
+        },
+        {
+            "state": "texas",
+            "count": 637
+        },
+        {
+            "state": "pennsylvania",
+            "count": 576
+        },
+        {
+            "state": "michigan",
+            "count": 460
+        },
+        {
+            "state": "ohio",
+            "count": 422
+        },
+        {
+            "state": "new york",
+            "count": 422
+        },
+        {
+            "state": "illinois",
+            "count": 344
+        },
+        {
+            "state": "massachusetts",
+            "count": 311
+        },
+        {
+            "state": "kentucky",
+            "count": 310
+        },
+        {
+            "state": "florida",
+            "count": 302
+        },
+        {
+            "state": "missouri",
+            "count": 268
+        },
+        {
+            "state": "indiana",
+            "count": 256
+        },
+        {
+            "state": "wisconsin",
+            "count": 250
+        },
+        {
+            "state": "georgia",
+            "count": 240
+        },
+        {
+            "state": "washington",
+            "count": 201
+        },
+        {
+            "state": "tennessee",
+            "count": 195
+        },
+        {
+            "state": "north carolina",
+            "count": 188
+        },
+        {
+            "state": "alabama",
+            "count": 187
+        },
+        {
+            "state": "virginia",
+            "count": 177
+        },
+        {
+            "state": "connecticut",
+            "count": 176
+        },
+        {
+            "state": "new jersey",
+            "count": 174
+        },
+        {
+            "state": "oklahoma",
+            "count": 167
+        },
+        {
+            "state": "south carolina",
+            "count": 150
+        },
+        {
+            "state": "colorado",
+            "count": 150
+        },
+        {
+            "state": "arizona",
+            "count": 144
+        },
+        {
+            "state": "minnesota",
+            "count": 144
+        },
+        {
+            "state": "oregon",
+            "count": 143
+        },
+        {
+            "state": "iowa",
+            "count": 141
+        },
+        {
+            "state": "maryland",
+            "count": 137
+        },
+        {
+            "state": "utah",
+            "count": 119
+        },
+        {
+            "state": "kansas",
+            "count": 108
+        },
+        {
+            "state": "arkansas",
+            "count": 98
+        },
+        {
+            "state": "west virginia",
+            "count": 93
+        },
+        {
+            "state": "nebraska",
+            "count": 92
+        },
+        {
+            "state": "hawaii",
+            "count": 91
+        },
+        {
+            "state": "louisiana",
+            "count": 85
+        },
+        {
+            "state": "wyoming",
+            "count": 72
+        },
+        {
+            "state": "new mexico",
+            "count": 68
+        },
+        {
+            "state": "south dakota",
+            "count": 65
+        },
+        {
+            "state": "new hampshire",
+            "count": 64
+        },
+        {
+            "state": "rhode island",
+            "count": 63
+        },
+        {
+            "state": "idaho",
+            "count": 61
+        },
+        {
+            "state": "vermont",
+            "count": 58
+        },
+        {
+            "state": "mississippi",
+            "count": 56
+        },
+        {
+            "state": "nevada",
+            "count": 54
+        },
+        {
+            "state": "north dakota",
+            "count": 51
+        },
+        {
+            "state": "maine",
+            "count": 48
+        },
+        {
+            "state": "montana",
+            "count": 38
+        },
+        {
+            "state": "delaware",
+            "count": 29
+        },
+        {
+            "state": "alaska",
+            "count": 27
+        },
+        {
+            "state": "washington dc",
+            "count": 16
+        }
+    ],
+    "country_counts": [
+        {
+            "country": "United States",
+            "count": 9731
+        }
+    ],
+    "top_apparition_by_state": [
+        {
+            "state": "california",
+            "apparition_type": "Ghost",
+            "count": 352
+        },
+        {
+            "state": "texas",
+            "apparition_type": "Unknown",
+            "count": 222
+        },
+        {
+            "state": "pennsylvania",
+            "apparition_type": "Ghost",
+            "count": 212
+        },
+        {
+            "state": "michigan",
+            "apparition_type": "Unknown",
+            "count": 171
+        },
+        {
+            "state": "ohio",
+            "apparition_type": "Unknown",
+            "count": 155
+        },
+        {
+            "state": "new york",
+            "apparition_type": "Ghost",
+            "count": 143
+        },
+        {
+            "state": "kentucky",
+            "apparition_type": "Unknown",
+            "count": 130
+        },
+        {
+            "state": "illinois",
+            "apparition_type": "Unknown",
+            "count": 110
+        },
+        {
+            "state": "massachusetts",
+            "apparition_type": "Unknown",
+            "count": 110
+        },
+        {
+            "state": "indiana",
+            "apparition_type": "Unknown",
+            "count": 101
+        },
+        {
+            "state": "florida",
+            "apparition_type": "Unknown",
+            "count": 100
+        },
+        {
+            "state": "wisconsin",
+            "apparition_type": "Unknown",
+            "count": 96
+        },
+        {
+            "state": "missouri",
+            "apparition_type": "Ghost",
+            "count": 92
+        },
+        {
+            "state": "georgia",
+            "apparition_type": "Unknown",
+            "count": 75
+        },
+        {
+            "state": "virginia",
+            "apparition_type": "Ghost",
+            "count": 74
+        }
+    ],
+    "region_counts": [
+        {
+            "region": "South",
+            "count": 3067
+        },
+        {
+            "region": "Midwest",
+            "count": 2601
+        },
+        {
+            "region": "West",
+            "count": 2171
+        },
+        {
+            "region": "Northeast",
+            "count": 1892
+        }
+    ]
+}
