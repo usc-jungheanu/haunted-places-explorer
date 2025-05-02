@@ -65,6 +65,8 @@ If you prefer to install manually:
 4. Run the application:
    ```bash
    streamlit run app.py
+   or
+   python -m streamlit run app.py
    ```
 
 ## Data
