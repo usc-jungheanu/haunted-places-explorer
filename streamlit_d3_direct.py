@@ -103,7 +103,7 @@ def load_data_files():
 
 def create_map_visualization(map_data):
     """Create the Map Visualization using D3"""
-    st.header("Interactive Map of Haunted Locations")
+    st.header("Map of Haunted Locations")
     
     if not map_data or "map_data" not in map_data or not map_data["map_data"]:
         st.warning("Map data is empty or not available.")
