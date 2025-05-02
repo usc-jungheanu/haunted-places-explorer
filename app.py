@@ -427,7 +427,7 @@ with st.sidebar:
     # Create column layout for buttons
     menu_options = {
         "🏠 Home": "Home",
-        "📚 Homework Insights Visualization": "HW Insights Analysis",
+        "☁️ Air Pollution Analysis": "Air Pollution Analysis",
         "🗺️ Map View": "Map Visualization",
         "⏱️ Time Analysis": "Time Analysis",
         "🔍 Evidence Analysis": "Evidence Analysis",
@@ -471,8 +471,8 @@ if page == "Home":
     Use the sidebar to navigate between different visualizations.
     """)
 
-elif page == "HW Insights Analysis":
-    st.header("Homework Insights Visualization")
+elif page == "Air Pollution Analysis":
+    st.header("Air Pollution Analysis")
     
     # Add summary description for HW1 Visualization
     st.markdown("""
@@ -490,7 +490,7 @@ elif page == "HW Insights Analysis":
         col1, col2 = st.columns([1, 2])
         
         with col1:
-            st.subheader("Haunted Reports by Air Quality (CO2 PPB)")
+            st.subheader("Haunted Reports by Air Quality (CO PPB)")
             # Prepare data for overall distribution donut chart
             overall_labels = []
             overall_values = []
@@ -527,7 +527,7 @@ elif page == "HW Insights Analysis":
             st.plotly_chart(fig1, use_container_width=True)
         
         with col2:
-            st.subheader("Visual Evidence Breakdown by Air Quality (CO2 PPB)")
+            st.subheader("Visual Evidence Breakdown by Air Quality (CO PPB)")
             # Prepare data for breakdown visualization
             evidence_mapping = {
                 'TRUE': 'Visual Evidence',

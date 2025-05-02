@@ -30,7 +30,7 @@ def add_d3_visualizations_tab():
     
     # Create tabs for different visualizations with clear formatting
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "📚 Homework Insights Visualization",
+        "☁️ Air Pollution Analysis",
         "🗺️ Map Visualization", 
         "⏱️ Time Analysis", 
         "🔍 Evidence Analysis", 
@@ -86,7 +86,7 @@ def add_d3_visualizations_tab():
             col1, col2 = st.columns([1, 2])
         
             with col1:
-                st.subheader("Haunted Reports by Air Quality (CO2 PPB)")
+                st.subheader("Haunted Reports by Air Quality (CO PPB)")
                 # Prepare data for overall distribution donut chart
                 overall_labels = []
                 overall_values = []
@@ -123,7 +123,7 @@ def add_d3_visualizations_tab():
                 st.plotly_chart(fig1, use_container_width=True)
             
             with col2:
-                st.subheader("Visual Evidence Breakdown by Air Quality (CO2 PPB)")
+                st.subheader("Visual Evidence Breakdown by Air Quality (CO PPB)")
                 # Prepare data for breakdown visualization
                 evidence_mapping = {
                     'TRUE': 'Visual Evidence',
