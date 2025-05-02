@@ -911,17 +911,17 @@ elif page == "Time Analysis":
     else:
         st.warning("No time analysis data available")
 
-    #insights section
-    st.markdown("""
-    <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
-    <h3 style='color: #FFFFFF;'>Insights:</h3>
-    <ul style='color: #FFFFFF;'>
-        <li>We see spikes in haunted places reports in 1990 and 2008. Possible explanations for these spikes is that the increased volume of reports could have been due in part to the rise of the internet and social media as well as increasing popularity of paranormal content in entertainment.</li>
-        <li>2008 saw widespread adoption of digital and social media platforms such as Reddit and Youtube which may have helped sensationalize paranormal content and helped facilitate the spread of paranormal reports.</li>
-        <li>In 1990, there was a resurgence in paranormal and ghost related content in popular culture, with the release of "Ghost" and with shows like "Unsolved Mysteries" and "The X-Files" which may have helped popularize the idea of haunted places.</li>
-    </ul>
-    </div>
-    """, unsafe_allow_html=True)
+        #insights section
+        st.markdown("""
+        <div style='background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 5px; margin: 10px 0;'>
+        <h3 style='color: #FFFFFF;'>Insights:</h3>
+        <ul style='color: #FFFFFF;'>
+            <li>We see spikes in haunted places reports in 1990 and 2008. Possible explanations for these spikes is that the increased volume of reports could have been due in part to the rise of the internet and social media as well as increasing popularity of paranormal content in entertainment.</li>
+            <li>2008 saw widespread adoption of digital and social media platforms such as Reddit and Youtube which may have helped sensationalize paranormal content and helped facilitate the spread of paranormal reports.</li>
+            <li>In 1990, there was a resurgence in paranormal and ghost related content in popular culture, with the release of "Ghost" and with shows like "Unsolved Mysteries" and "The X-Files" which may have helped popularize the idea of haunted places.</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
 
 elif page == "Evidence Analysis":
     st.header("Evidence Analysis")
