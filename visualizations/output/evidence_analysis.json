@@ -1,0 +1,45 @@
+{
+    "evidence_counts": {
+        "Sound": 3382,
+        "Visual": 2937,
+        "Temperature": 580,
+        "Touch": 370,
+        "EMF": 15,
+        "Smell": 45,
+        "Movement": 580,
+        "Poltergeist": 10,
+        "Orbs": 47,
+        "EVP": 3,
+        "Unknown": 1762
+    },
+    "apparition_counts": [
+        {
+            "apparition_type": "Unknown",
+            "count": 3330
+        },
+        {
+            "apparition_type": "Ghost",
+            "count": 3109
+        },
+        {
+            "apparition_type": "Ghost Light",
+            "count": 1923
+        },
+        {
+            "apparition_type": "Mist",
+            "count": 797
+        },
+        {
+            "apparition_type": "Shadow Figure",
+            "count": 346
+        },
+        {
+            "apparition_type": "Full-Bodied Apparition",
+            "count": 128
+        },
+        {
+            "apparition_type": "Partial Apparition",
+            "count": 98
+        }
+    ]
+}
