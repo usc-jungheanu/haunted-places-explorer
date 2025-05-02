@@ -458,7 +458,7 @@ if page == "Home":
     st.header("Welcome to the Haunted Places Explorer")
     st.markdown("""
     This dashboard provides various ways to explore and analyze haunted places data:
-    - **Homework Insights Visualization**: Visualize insights derived from prior homework assignments
+    - **Air Pollution Visualization**: Visualize key insights derived from air pollution feature set appended in homework 1
     - **Map Visualization**: View haunted locations on an interactive map
     - **Time Analysis**: Explore temporal patterns in haunted sightings
     - **Evidence Analysis**: Analyze types of evidence and apparitions
