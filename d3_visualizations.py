@@ -89,7 +89,7 @@ class D3VisualizationGenerator:
             </div>
             
             <div id="map-visualization" class="tab-content visualization active">
-                <h2>Interactive Map of Haunted Locations</h2>
+                <h2>Map of Haunted Locations</h2>
                 <div id="map-container"></div>
             </div>
             
