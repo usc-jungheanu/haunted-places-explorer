@@ -16,7 +16,7 @@ from simplified_memex import add_simplified_memex_tab
 from data_storage import load_processed_data
 from data_processor import DataProcessor
 from memex_integration import add_memex_tab
-from streamlit_d3_integration import add_d3_visualizations_tab
+from streamlit_d3_direct import add_d3_visualizations_tab
 
 # Import new modules - handle gracefully if not available
 try:
@@ -198,7 +198,7 @@ st.markdown("""
     }
     
     /* Remove the sidebar collapse button completely */
-    section[data-testid="stSidebar"] > div > div:first-child {
+    button[kind="expanderIcon"] {
         display: none !important;
     }
     
@@ -298,47 +298,53 @@ st.markdown("""
 # Load and process data if needed
 @st.cache_data
 def load_data():
-    # Create data directories if they don't exist
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
-    # Check if we have the processed data files
-    required_files = [
-        os.path.join(OUTPUT_DIR, "map_data.json"),
-        os.path.join(OUTPUT_DIR, "time_analysis.json"),
-        os.path.join(OUTPUT_DIR, "evidence_analysis.json"),
-        os.path.join(OUTPUT_DIR, "location_analysis.json"),
-        os.path.join(OUTPUT_DIR, "correlation_data.json"),
-        os.path.join(OUTPUT_DIR, "air_pollution.json")
-    ]
-    
-    all_files_exist = all(os.path.exists(f) for f in required_files)
-    
-    if not all_files_exist:
-        with st.spinner("Processing data... This may take a moment."):
-            try:
-                # Process the data
-                data_processor = DataProcessor(
-                    os.path.join(DATA_DIR, "haunted_places_v2.tsv"),
-                    OUTPUT_DIR
-                )
-                data_processor.process_all()
-                global PROCESSED_DATA
-                PROCESSED_DATA = True
-                st.success("Data processed successfully!")
-            except Exception as e:
-                st.error(f"Error processing data: {e}")
-                logger.error(f"Error processing data: {e}")
-                return False
-    
-    # Load the processed data into the data storage for MEMEX tools
-    load_processed_data(OUTPUT_DIR)
-    
-    return True
+    """Load and process data for analysis"""
+    try:
+        # Create data directories if they don't exist
+        os.makedirs(DATA_DIR, exist_ok=True)
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        
+        # Check if we have the processed data files
+        required_files = [
+            os.path.join(OUTPUT_DIR, "map_data.json"),
+            os.path.join(OUTPUT_DIR, "time_analysis.json"),
+            os.path.join(OUTPUT_DIR, "evidence_analysis.json"),
+            os.path.join(OUTPUT_DIR, "location_analysis.json"),
+            os.path.join(OUTPUT_DIR, "correlation_data.json"),
+            os.path.join(OUTPUT_DIR, "air_pollution.json")
+        ]
+        
+        all_files_exist = all(os.path.exists(f) for f in required_files)
+        
+        if not all_files_exist:
+            with st.spinner("Processing data... This may take a moment."):
+                try:
+                    # Process the data
+                    data_processor = DataProcessor(
+                        os.path.join(DATA_DIR, "haunted_places_v2.tsv"),
+                        OUTPUT_DIR
+                    )
+                    data_processor.process_all()
+                    global PROCESSED_DATA
+                    PROCESSED_DATA = True
+                    st.success("Data processed successfully!")
+                except Exception as e:
+                    st.error(f"Error processing data: {e}")
+                    logger.error(f"Error processing data: {e}")
+                    return False
+        
+        # Load the processed data into the data storage for MEMEX tools
+        load_processed_data(OUTPUT_DIR)
+        
+        return True
+    except Exception as e:
+        st.error(f"Error loading data: {str(e)}")
+        return False
 
 # Load map data
 @st.cache_data
 def load_map_data():
+    """Load map data for D3 visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "map_data.json"), "r") as f:
             return json.load(f)
@@ -349,6 +355,7 @@ def load_map_data():
 # Load time analysis data
 @st.cache_data
 def load_time_analysis():
+    """Load time analysis data for D3 visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "time_analysis.json"), "r") as f:
             return json.load(f)
@@ -359,6 +366,7 @@ def load_time_analysis():
 # Load evidence analysis data
 @st.cache_data
 def load_evidence_analysis():
+    """Load evidence analysis data for D3 visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "evidence_analysis.json"), "r") as f:
             return json.load(f)
@@ -369,6 +377,7 @@ def load_evidence_analysis():
 # Load location analysis data
 @st.cache_data
 def load_location_analysis():
+    """Load location analysis data for D3 visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "location_analysis.json"), "r") as f:
             return json.load(f)
@@ -379,23 +388,25 @@ def load_location_analysis():
 # Load correlation data
 @st.cache_data
 def load_correlation_data():
+    """Load correlation data for D3 visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "correlation_data.json"), "r") as f:
             return json.load(f)
     except Exception as e:
         logger.error(f"Error loading correlation data: {e}")
         return None
+    
 
 # Load air pollution data
 @st.cache_data
 def load_air_pollution_data():
+    """Load air pollution data for visualization"""
     try:
         with open(os.path.join(OUTPUT_DIR, "air_pollution.json"), "r") as f:
             return json.load(f)
     except Exception as e:
         logger.error(f"Error loading air pollution data: {e}")
         return None
-
 
 # Process data and ensure files exist
 data_loaded = load_data()
@@ -458,6 +469,7 @@ if page == "Home":
     st.header("Welcome to the Haunted Places Explorer")
     st.markdown("""
     This dashboard provides various ways to explore and analyze haunted places data:
+    
     - **Air Pollution Visualization**: Visualize key insights derived from air pollution feature set appended in homework 1
     - **Map Visualization**: View haunted locations on an interactive map
     - **Time Analysis**: Explore temporal patterns in haunted sightings
@@ -470,6 +482,7 @@ if page == "Home":
     
     Use the sidebar to navigate between different visualizations.
     """)
+
 
 elif page == "Air Pollution Analysis":
     st.header("Air Pollution Analysis")
@@ -600,7 +613,7 @@ elif page == "Air Pollution Analysis":
         <div>
         <h3>Insights:</h3>
         <ul>
-            <li>Carbon monoxide can typically cause hallucinations that are oftentimes attributed as the cause of “hauntings”. Areas with poor CO air quality had higher percentages of reports with no visual evidence. </li>
+            <li>Carbon monoxide can typically cause hallucinations that are oftentimes attributed as the cause of "hauntings". Areas with poor CO air quality had higher percentages of reports with no visual evidence. </li>
             <li>90.91% of reports in areas with good air quality as defined by concentration in parts-per-billion (ppb) of carbon monoxide (CO) had visual evidence.</li>
             <li>The number of reports with no visual evidence increased as the concentration of CO increased(and air quality as a measure of this concentration decreased). With each level of decreased air quality, the portion of reports with no visual evidence increased significantly. </li>
         </ul>
@@ -861,8 +874,29 @@ elif page == "Time Analysis":
             st.subheader("Average Daylight Hours by State")
             df_daylight = pd.DataFrame(data['time']['daylight_by_state'])
             if not df_daylight.empty and 'state' in df_daylight.columns and 'average_daylight_hours' in df_daylight.columns:
-                fig = px.bar(df_daylight.head(20), x='state', y='average_daylight_hours',
-                            title='Average Daylight Hours by State (Top 20)')
+                # Filter out any NaN values to prevent visualization issues
+                df_daylight = df_daylight.dropna(subset=['average_daylight_hours'])
+                
+                # Sort by daylight hours for better visualization
+                df_daylight = df_daylight.sort_values('average_daylight_hours', ascending=False)
+                
+                # Add a checkbox to toggle between showing all states or just the top ones
+                show_all_states = st.checkbox("Show all states", value=True)
+                
+                if show_all_states:
+                    # Show all states
+                    fig = px.bar(df_daylight, x='state', y='average_daylight_hours',
+                               title='Average Daylight Hours by State (All States)')
+                    # Adjust layout for better readability with many states
+                    fig.update_layout(
+                        xaxis={'categoryorder':'total descending'},
+                        height=600  # Make the chart taller to accommodate all states
+                    )
+                else:
+                    # Show only top 20 states
+                    fig = px.bar(df_daylight.head(20), x='state', y='average_daylight_hours',
+                               title='Average Daylight Hours by State (Top 20)')
+                
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No daylight hours data available")
@@ -882,6 +916,7 @@ elif page == "Time Analysis":
     </ul>
     </div>
     """, unsafe_allow_html=True)
+
 elif page == "Evidence Analysis":
     st.header("Evidence Analysis")
     
@@ -1084,6 +1119,7 @@ elif page == "Correlation Analysis":
         <li>Looking at the larger correlation matrix, there are some weak correlations between latitude and certain states, which is expected due to their geographic positions. The state correlations show mostly negative values with each other (visible in the blue squares), which is logical since a haunting can't occur in multiple states simultaneously.</li>
         <li>Full-Bodied Apparitions show very weak negative correlations with all other types, suggesting they occur relatively independently. Shadow Figures and Partial Apparitions have the weakest correlations with other types, indicating they might occur randomly across locations.</li>
         <li>The generally weak correlations between different apparition types suggest that haunted places don't typically experience multiple types of apparitions simultaneously. The strongest relationships are between traditional ghost sightings and other manifestation types, possibly indicating that these categories might overlap in witness descriptions. The geographic correlations (visible in the larger matrix) suggest some regional patterns in haunting reports, though these correlations are relatively weak. </li>
+    </ul>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1107,16 +1143,15 @@ elif page == "D3 Visualizations":
     
     # Try to import and use the D3 visualization code
     try:
-        from streamlit_d3_integration import add_d3_visualizations_tab
         add_d3_visualizations_tab()
-    except ImportError:
-        st.error("D3 integration module not found. Please create streamlit_d3_integration.py first.")
+    except Exception as e:
+        st.error(f"D3 visualization module error: {str(e)}")
         
         # Provide instructions
         st.info("""
         To set up D3 visualizations:
         
-        1. Create a file named `streamlit_d3_integration.py` with the code provided
+        1. Create a file named `streamlit_d3_direct.py` with the code provided
         2. Create a directory named `visualizations`
         3. Create HTML files for each D3 visualization in the `visualizations` directory
         """)
