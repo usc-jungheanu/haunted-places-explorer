@@ -224,17 +224,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Authors
 
-Tyler Wong
+Tyler Wong: 
 Led the development of the final report, writing the majority of the analysis and conclusions. Also contributed to the app development by helping integrate key components.
 
-Ryan Ho
+Ryan Ho: 
 Supported app development by adding contextual insights and designing visualizations, particularly around the air pollution data. Also contributed to the report by providing supporting insights and narrative connections to the data.
 
-Jesse Fulcher
+Jesse Fulcher: 
 Assisted with the core framework development and code logic of the application. Also assisted in shaping the report by contributing analytical insights based on application outputs and data behavior.
 
-Jason Ungheanu
+Jason Ungheanu: 
 Designed the application’s interface and backend structure. Integrated major features including Elasticsearch functionality, image processing, and dataset merging. Contributed analytical observations to the final report as well.
 
-James Temme
+James Temme: 
 Collaborated on conceptual planning and brainstorming. Provided creative direction for visuals and contributed ideas during app and report development discussions.
