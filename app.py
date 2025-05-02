@@ -483,6 +483,12 @@ if page == "Home":
     Use the sidebar to navigate between different visualizations.
     """)
 
+    # Add authors section
+    st.markdown("---")
+    st.markdown("""
+    ### Authors:
+    James Temme, Jason Ungheanu, Jesse Fulcher, Ryan Ho, and Tyler Wong
+    """)
 
 elif page == "Air Pollution Analysis":
     st.header("Air Pollution Analysis")
